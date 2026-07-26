@@ -20,3 +20,5 @@ WeMod.WeMod
 Gibbed.SteamAchievementManager
 LocalSend.LocalSend
 Notepad++.Notepad++
+OpenJS.NodeJS.LTS
+Corsair.iCUE.5
