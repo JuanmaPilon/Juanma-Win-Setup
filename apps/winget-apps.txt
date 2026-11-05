@@ -26,3 +26,10 @@ Corsair.iCUE.5
 # Verified from installed apps (main PC)
 NexusMods.Vortex
 63BeetleSmurf.PinnyNotes
+
+# Terminal / shell tooling
+JanDeDobbeleer.OhMyPosh
+DEVCOM.JetBrainsMonoNerdFont
+Fastfetch-cli.Fastfetch
+svenstaro.genact
+cowboy8625.rusty-rain

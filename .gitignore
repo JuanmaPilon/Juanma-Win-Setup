@@ -45,3 +45,6 @@ configs/git/**
 # Manual installers stay local; only the list is versioned
 configs/manual-installs/*
 !configs/manual-installs/README.md
+configs/terminal/**
+!configs/terminal/import.ps1
+!configs/terminal/README.md
