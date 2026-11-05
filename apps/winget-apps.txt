@@ -22,3 +22,7 @@ LocalSend.LocalSend
 Notepad++.Notepad++
 OpenJS.NodeJS.LTS
 Corsair.iCUE.5
+
+# Verified from installed apps (main PC)
+NexusMods.Vortex
+63BeetleSmurf.PinnyNotes

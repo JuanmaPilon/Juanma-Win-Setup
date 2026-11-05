@@ -58,6 +58,8 @@ Recommended order on a fresh machine:
 
 The implementation is modular by design. Each script has a focused responsibility so the setup can grow without becoming brittle.
 
+AI agents contributing to this repo should follow [.github/copilot-instructions.md](.github/copilot-instructions.md).
+
 ## Backup policy 🔒
 
 Sensitive or machine-specific data should not be committed by default.
@@ -69,6 +71,8 @@ Sensitive or machine-specific data should not be committed by default.
 ## Config coverage ✅
 
 The current setup flow focuses on environment variables, StartAllBack, PowerToys, Windows UI preferences (mouse/theme), and startup apps. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
+
+Apps without a Winget package are tracked in [configs/manual-installs/README.md](configs/manual-installs/README.md), with vendor links and instructions to keep installers under `private-configs/manual-installs/`.
 
 ## Environment variables safety
 

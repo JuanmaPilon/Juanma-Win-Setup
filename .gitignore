@@ -33,3 +33,15 @@ configs/powertoys/**
 configs/startallback/**
 !configs/startallback/import.ps1
 !configs/startallback/README.md
+configs/windows-ui/**
+!configs/windows-ui/import.ps1
+!configs/windows-ui/README.md
+configs/startup/**
+!configs/startup/import.ps1
+!configs/startup/README.md
+configs/git/**
+!configs/git/import.ps1
+!configs/git/README.md
+# Manual installers stay local; only the list is versioned
+configs/manual-installs/*
+!configs/manual-installs/README.md
