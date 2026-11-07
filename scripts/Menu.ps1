@@ -46,8 +46,10 @@ while ($true) {
             & (Join-Path $repoRoot 'scripts/Export-PowerToys.ps1')
             & (Join-Path $repoRoot 'scripts/Export-WindowsUI.ps1') -IncludeExplorerAdvanced -IncludeQuickAccessPins
             & (Join-Path $repoRoot 'scripts/Export-StartupApps.ps1')
-            & (Join-Path $repoRoot 'scripts/Export-TerminalConfig.ps1')            & (Join-Path $repoRoot 'scripts\Export-Windhawk.ps1')            & (Join-Path $repoRoot 'scripts\Backup-PrivateConfigs.ps1')
-            Write-Host 'Export completed for environment variables, StartAllBack, PowerToys, Windows UI, startup apps, and terminal.' -ForegroundColor Green
+            & (Join-Path $repoRoot 'scripts/Export-TerminalConfig.ps1')
+            & (Join-Path $repoRoot 'scripts/Export-Windhawk.ps1')
+            & (Join-Path $repoRoot 'scripts/Backup-PrivateConfigs.ps1')
+            Write-Host 'Export completed for environment variables, StartAllBack, PowerToys, Windows UI, startup apps, terminal, and Windhawk.' -ForegroundColor Green
             Write-Host 'A disaster-recovery ZIP of private-configs was created under %USERPROFILE%\Win-Setup-Backups.' -ForegroundColor Green
         }
         '6' {
