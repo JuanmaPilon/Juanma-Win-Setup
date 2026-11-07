@@ -75,7 +75,7 @@ Módulos de configuración existentes: `startallback`, `powertoys`, `windows-ui`
 
 - Repo público = solo código y docs. Backups y exports = `private-configs/`.
 - `.gitignore` ya cubre `private-configs/` y bloquea configs públicos sensibles (solo permite `import.ps1` y `README.md`).
-- Backup de recuperación: `scripts/Backup-PrivateConfigs.ps1` genera un ZIP rotativo en `%USERPROFILE%\Win-Setup-Backups` (nunca dentro del repo).
+- Backup de recuperación: copiar la carpeta `private-configs/` completa a un medio externo (USB, nube o LocalSend a otra PC). Nunca guardarla dentro del repo.
 
 ## Patrón para agregar un módulo nuevo (checklist)
 

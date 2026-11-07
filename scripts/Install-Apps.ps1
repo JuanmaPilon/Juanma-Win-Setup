@@ -44,12 +44,18 @@ $summary = [ordered]@{
     Failed = @()
 }
 
-foreach ($package in $packages) {
+$packageList = @($packages)
+$packageTotal = [Math]::Max($packageList.Count, 1)
+$packageIndex = 0
+
+foreach ($package in $packageList) {
     $packageId = $package.Trim()
     if (-not $packageId) {
         continue
     }
 
+    $packageIndex++
+    Write-SetupProgress -Activity 'Installing applications' -Status "$packageId ($packageIndex/$packageTotal)" -PercentComplete ([int](($packageIndex - 1) * 100 / $packageTotal))
     Write-SetupStep "Checking package: $packageId"
 
     $listOutput = winget list --id $packageId --exact --source winget 2>$null
@@ -105,6 +111,8 @@ foreach ($package in $packages) {
 }
 
 Write-SetupStep 'Application installation stage completed.'
+
+Clear-SetupProgress
 
 $summaryText = "Installed: $($summary.Installed.Count); Would install: $($summary.WouldInstall.Count); Failed: $($summary.Failed.Count)"
 Write-SetupStep "Install summary: $summaryText"

@@ -7,40 +7,61 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Import-Module (Join-Path $repoRoot 'modules/SetupHelpers.psm1') -Force
 
-while ($true) {
+function Show-MainMenu {
+    Clear-Host
+    Write-SetupBanner -Title 'WIN-SETUP' -Subtitle ("Repositorio: {0}" -f $repoRoot)
     Write-Host ''
-    Write-Host 'Choose an action:' -ForegroundColor Cyan
-    Write-Host '1) Install Winget'
-    Write-Host '2) Run full setup'
-    Write-Host '3) Import environment variables'
-    Write-Host '4) Import config backups'
-    Write-Host '5) Export everything'
-    Write-Host '6) Exit'
 
-    $choice = Read-Host 'Selection'
+    Write-SetupMenuItem -Key '1' -Text 'Install Winget' -Hint 'bootstrap del gestor de paquetes'
+    Write-SetupMenuItem -Key '2' -Text 'Run full setup' -Hint 'apps + configs + finalize'
+    Write-SetupMenuItem -Key '3' -Text 'Import environment variables' -Hint 'variables de usuario/maquina'
+    Write-SetupMenuItem -Key '4' -Text 'Import config backups' -Hint 'startallback, powertoys, terminal, windhawk...'
+    Write-SetupMenuItem -Key '5' -Text 'Export everything' -Hint 'genera private-configs desde esta PC'
+    Write-SetupMenuItem -Key '0' -Text 'Exit'
+
+    Write-Host ''
+    Write-SetupRule
+}
+
+while ($true) {
+    Show-MainMenu
+
+    $choice = Read-Host 'Select'
 
     switch ($choice) {
         '1' {
+            Write-Host ''
             $runAsAdmin = Read-Host 'Install Winget as administrator? (y/n)'
             if ($runAsAdmin -match '^(y|yes)$') {
                 $wingetScript = Join-Path $repoRoot 'scripts/Install-Winget.ps1'
                 Start-Process powershell.exe -Verb RunAs -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $wingetScript, '-RepositoryRoot', $repoRoot) | Out-Null
-                Write-Host 'Started Winget installation in an elevated PowerShell window.' -ForegroundColor Green
+                Write-SetupSuccess 'Started Winget installation in an elevated PowerShell window.'
             }
             else {
                 & (Join-Path $repoRoot 'scripts/Install-Winget.ps1') -RepositoryRoot $repoRoot
             }
         }
         '2' {
+            Write-Host ''
+            Write-SetupRule
             & (Join-Path $repoRoot 'Setup.ps1')
+            Write-SetupRule
         }
         '3' {
+            Write-Host ''
+            Write-SetupRule
             & (Join-Path $repoRoot 'scripts/Import-EnvironmentVariables.ps1')
+            Write-SetupRule
         }
         '4' {
+            Write-Host ''
+            Write-SetupRule
             & (Join-Path $repoRoot 'scripts/Import-Configs.ps1') -RepositoryRoot $repoRoot
+            Write-SetupRule
         }
         '5' {
+            Write-Host ''
+            Write-SetupRule
             & (Join-Path $repoRoot 'scripts/Export-EnvironmentVariables.ps1')
             & (Join-Path $repoRoot 'scripts/Export-StartAllBack.ps1')
             & (Join-Path $repoRoot 'scripts/Export-PowerToys.ps1')
@@ -48,16 +69,26 @@ while ($true) {
             & (Join-Path $repoRoot 'scripts/Export-StartupApps.ps1')
             & (Join-Path $repoRoot 'scripts/Export-TerminalConfig.ps1')
             & (Join-Path $repoRoot 'scripts/Export-Windhawk.ps1')
-            & (Join-Path $repoRoot 'scripts/Backup-PrivateConfigs.ps1')
-            Write-Host 'Export completed for environment variables, StartAllBack, PowerToys, Windows UI, startup apps, terminal, and Windhawk.' -ForegroundColor Green
-            Write-Host 'A disaster-recovery ZIP of private-configs was created under %USERPROFILE%\Win-Setup-Backups.' -ForegroundColor Green
+            Write-SetupRule
+            Write-SetupSuccess 'Export completed: environment variables, StartAllBack, PowerToys, Windows UI, startup apps, terminal and Windhawk.'
+        }
+        '0' {
+            Write-Host ''
+            Write-SetupSuccess 'Exiting menu.'
+            return
         }
         '6' {
+            # backwards-compatible exit key
+            Write-Host ''
             Write-SetupSuccess 'Exiting menu.'
             return
         }
         default {
-            Write-Host 'Invalid selection.' -ForegroundColor Yellow
+            Write-SetupWarning 'Invalid selection.'
         }
     }
+
+    Write-Host ''
+    Write-Host '  Press Enter to return to the menu...' -ForegroundColor DarkGray -NoNewline
+    $null = Read-Host
 }

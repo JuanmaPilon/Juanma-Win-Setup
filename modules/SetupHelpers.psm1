@@ -138,4 +138,70 @@ function Import-RegistryGroup {
     reg import $Path | Out-Null
 }
 
-Export-ModuleMember -Function Write-SetupStep, Write-SetupInfo, Write-SetupSuccess, Write-SetupWarning, Write-SetupError, Test-CommandAvailable, Initialize-Winget, Import-RegistryGroup
+function Write-SetupBanner {
+    param(
+        [Parameter(Mandatory = $true)][string]$Title,
+        [string]$Subtitle
+    )
+
+    $width = 62
+    $line = [string]::new([char]0x2550, $width)
+    $side = [char]0x2551
+    $empty = [string]::new(' ', $width)
+
+    Write-Host ([string][char]0x2554 + $line + [string][char]0x2557) -ForegroundColor DarkCyan
+    Write-Host ($side + $empty + $side) -ForegroundColor DarkCyan
+    Write-Host ($side + ("  {0}" -f $Title).PadRight($width) + $side) -ForegroundColor Cyan
+    if ($Subtitle) {
+        Write-Host ($side + ("  {0}" -f $Subtitle).PadRight($width) + $side) -ForegroundColor DarkGray
+    }
+    Write-Host ($side + $empty + $side) -ForegroundColor DarkCyan
+    Write-Host ([string][char]0x255A + $line + [string][char]0x255D) -ForegroundColor DarkCyan
+}
+
+function Write-SetupRule {
+    param([int]$Width = 62)
+
+    Write-Host ([string]::new([char]0x2500, $Width)) -ForegroundColor DarkGray
+}
+
+function Write-SetupMenuItem {
+    param(
+        [Parameter(Mandatory = $true)][string]$Key,
+        [Parameter(Mandatory = $true)][string]$Text,
+        [string]$Hint
+    )
+
+    Write-Host '  [' -NoNewline -ForegroundColor DarkGray
+    Write-Host $Key -NoNewline -ForegroundColor Cyan
+    Write-Host ']  ' -NoNewline -ForegroundColor DarkGray
+    Write-Host $Text -NoNewline -ForegroundColor White
+    if ($Hint) {
+        Write-Host "   $Hint" -ForegroundColor DarkGray
+    }
+    else {
+        Write-Host ''
+    }
+}
+
+function Write-SetupProgress {
+    param(
+        [Parameter(Mandatory = $true)][string]$Activity,
+        [string]$Status,
+        [int]$PercentComplete = -1,
+        [int]$Id = 1
+    )
+
+    $params = @{ Id = $Id; Activity = $Activity }
+    if ($PSBoundParameters.ContainsKey('Status')) { $params['Status'] = $Status }
+    if ($PercentComplete -ge 0) { $params['PercentComplete'] = [Math]::Min($PercentComplete, 100) }
+    Write-Progress @params
+}
+
+function Clear-SetupProgress {
+    param([int]$Id = 1)
+
+    Write-Progress -Id $Id -Activity ' ' -Completed
+}
+
+Export-ModuleMember -Function Write-SetupStep, Write-SetupInfo, Write-SetupSuccess, Write-SetupWarning, Write-SetupError, Write-SetupBanner, Write-SetupRule, Write-SetupMenuItem, Write-SetupProgress, Clear-SetupProgress, Test-CommandAvailable, Initialize-Winget, Import-RegistryGroup

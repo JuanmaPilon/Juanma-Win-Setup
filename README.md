@@ -100,15 +100,15 @@ Preview import without writing changes:
 
 ## Disaster recovery (reinstalling the main PC)
 
-Export everything also creates a rotating ZIP at `%USERPROFILE%\Win-Setup-Backups` (the repo refuses to store it inside itself).
+`private-configs/` is intentionally Git-ignored, so it never leaves this machine on its own.
 
 To rebuild the main PC from zero:
 
-1. Keep a copy of that ZIP somewhere off-machine (external drive, cloud, or another PC via LocalSend).
+1. Before wiping, copy the whole `private-configs/` folder somewhere off-machine (external drive, cloud, or another PC via LocalSend).
 2. Install Windows, then Git for Windows.
 3. `git clone https://github.com/JuanmaPilon/Juanma-Win-Setup.git`
-4. Extract the newest `Win-Setup-private-configs-*.zip` into the repo so its content lands in `private-configs/`.
+4. Copy the saved `private-configs/` folder back into the repo root.
 5. Run `Menu.cmd`: install Winget, run full setup, import environment variables (DryRun first), then import config backups.
 6. Sign out/in and open a new terminal to apply shell and UI settings.
 
-What is NOT covered by the bundle (handle manually): apps listed in [configs/manual-installs/README.md](configs/manual-installs/README.md) (ALSEYE BEM, Archon, NVIDIA driver, Canon), game installs managed by launchers, and the pending Firefox profile module.
+What is NOT covered by that folder (handle manually): apps listed in [configs/manual-installs/README.md](configs/manual-installs/README.md) (ALSEYE BEM, Archon, NVIDIA driver, Canon, Windhawk portable), game installs managed by launchers, and the pending Firefox profile module.
