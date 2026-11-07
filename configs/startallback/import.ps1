@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory = $true)][string]$RepositoryRoot,
     [switch]$RestoreShellState,
-    [switch]$RestorePinnedApps
+    [switch]$RestorePinnedApps,
+    [switch]$DryRun
 )
 
 Set-StrictMode -Version Latest
@@ -30,6 +31,20 @@ if (-not (Test-Path $sourceRoot)) {
 
 if (-not (Test-Path $targetRoot)) {
     Write-SetupWarning 'StartAllBack target directory not found. Install StartAllBack first.'
+    return
+}
+
+if ($DryRun) {
+    Write-SetupWarning 'Dry run mode enabled: no StartAllBack changes will be applied.'
+    foreach ($regName in @('StartIsBack-HKCU.reg', 'StartIsBack-HKLM.reg', 'Explorer-Advanced.reg', 'Explorer-StuckRects3.reg', 'Explorer-Taskband.reg')) {
+        if (Test-Path (Join-Path $sourceRoot $regName)) { Write-SetupInfo "[DryRun] Would import registry file: $regName" }
+    }
+    $filesRoot = Join-Path $sourceRoot 'files'
+    if (Test-Path $filesRoot) {
+        $count = (Get-ChildItem $filesRoot -Recurse -File -ErrorAction SilentlyContinue).Count
+        Write-SetupInfo "[DryRun] Would copy $count StartAllBack data files to $targetRoot"
+    }
+    Write-SetupSuccess 'Dry run completed.'
     return
 }
 

@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)][string]$RepositoryRoot)
+param(
+    [Parameter(Mandatory = $true)][string]$RepositoryRoot,
+    [switch]$DryRun
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Continue'
@@ -30,12 +33,12 @@ foreach ($target in $gitTargets) {
 		continue
 	}
 
-	try {
-		$destinationDirectory = Split-Path -Parent $target.Destination
-		if (-not (Test-Path $destinationDirectory)) {
-			New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
-		}
+	if ($DryRun) {
+		Write-SetupInfo "[DryRun] Would import Git file: $($target.Source)"
+		continue
+	}
 
+	try {
 		Copy-Item -Path $sourcePath -Destination $target.Destination -Force
 		Write-SetupInfo "Imported Git file: $($target.Source)"
 	}

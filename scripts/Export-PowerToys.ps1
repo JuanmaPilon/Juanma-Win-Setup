@@ -51,7 +51,7 @@ function Test-ShouldExportPowerToysFile {
         return $false
     }
 
-    if ($normalizedPath -match '\.(log|tmp|bak|lock)$') {
+    if ($normalizedPath -match '\.(log|tmp|bak|lock)$' -or $normalizedPath -match '\.cli-lock$') {
         return $false
     }
 

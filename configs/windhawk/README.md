@@ -14,12 +14,12 @@ El importador solo soporta modo portable (`windhawk.ini` con `[Storage] Portable
 
 ## Qué exporta/importa
 
-| Ruta | Contenido |
-|---|---|
-| `AppData\settings.ini` | settings de la app (tema, idioma, etc.) |
+| Ruta                          | Contenido                                         |
+| ----------------------------- | ------------------------------------------------- |
+| `AppData\settings.ini`        | settings de la app (tema, idioma, etc.)           |
 | `AppData\Engine\settings.ini` | settings del engine (include/exclude de procesos) |
-| `AppData\Engine\Mods\*.ini` | settings de cada mod instalado |
-| `AppData\ModsSource\*.wh.cpp` | fuentes de los mods instalados |
+| `AppData\Engine\Mods\*.ini`   | settings de cada mod instalado                    |
+| `AppData\ModsSource\*.wh.cpp` | fuentes de los mods instalados                    |
 
 Se excluye `Symbols\` (caché) y `warning.txt`.
 

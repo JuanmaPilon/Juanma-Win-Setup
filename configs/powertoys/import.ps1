@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)][string]$RepositoryRoot)
+param(
+    [Parameter(Mandatory = $true)][string]$RepositoryRoot,
+    [switch]$DryRun
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Continue'
@@ -17,6 +20,7 @@ Write-SetupStep 'Preparing PowerToys configuration import'
 $privateConfigSource = Join-Path $RepositoryRoot 'private-configs/powertoys'
 $publicConfigSource = Join-Path $RepositoryRoot 'configs/powertoys'
 $configSource = if (Test-Path $privateConfigSource) { $privateConfigSource } else { $publicConfigSource }
+$configSource = [System.IO.Path]::GetFullPath($configSource)
 $powertoysConfigPath = Join-Path $env:LOCALAPPDATA 'Microsoft/PowerToys'
 
 if (-not (Test-Path $configSource)) {
@@ -29,9 +33,11 @@ if (-not (Test-Path $powertoysConfigPath)) {
     return
 }
 
-Get-Process -ErrorAction SilentlyContinue |
-    Where-Object { $_.ProcessName -like 'PowerToys*' -or $_.ProcessName -like 'CmdPal*' } |
-    Stop-Process -Force -ErrorAction SilentlyContinue
+if (-not $DryRun) {
+    Get-Process -ErrorAction SilentlyContinue |
+        Where-Object { $_.ProcessName -like 'PowerToys*' -or $_.ProcessName -like 'CmdPal*' } |
+        Stop-Process -Force -ErrorAction SilentlyContinue
+}
 
 function Test-ShouldImportPowerToysFile {
     param([Parameter(Mandatory = $true)][string]$RelativePath)
@@ -50,7 +56,7 @@ function Test-ShouldImportPowerToysFile {
         return $false
     }
 
-    if ($normalizedPath -match '\.(log|tmp|bak|lock)$') {
+    if ($normalizedPath -match '\.(log|tmp|bak|lock)$' -or $normalizedPath -match '\.cli-lock$') {
         return $false
     }
 
@@ -66,6 +72,25 @@ function Test-ShouldImportPowerToysFile {
     }
 
     return $true
+}
+
+if ($DryRun) {
+    Write-SetupWarning 'Dry run mode enabled: no PowerToys files will be modified.'
+    Get-ChildItem -Path $configSource -Recurse -File -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            $relativePath = $_.FullName.Substring($configSource.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+            if (Test-ShouldImportPowerToysFile -RelativePath $relativePath) { Write-SetupInfo "[DryRun] Would import PowerToys file: $relativePath" }
+        }
+    $runtimeRoot = Join-Path $configSource 'runtime-backup'
+    if (Test-Path $runtimeRoot) {
+        Write-SetupInfo "[DryRun] Would restore $((@(Get-ChildItem $runtimeRoot -Recurse -File)).Count) runtime backup file(s) to LocalAppData\PowerToys"
+    }
+    $ptbRoot = Join-Path $configSource 'ptb-backup'
+    if (Test-Path $ptbRoot) {
+        Write-SetupInfo "[DryRun] Would restore $((@(Get-ChildItem $ptbRoot -File)).Count) .ptb backup file(s) to Documents\PowerToys\Backup"
+    }
+    Write-SetupSuccess 'Dry run completed.'
+    return
 }
 
 $runtimeSourceRoot = Join-Path $configSource 'runtime-backup'

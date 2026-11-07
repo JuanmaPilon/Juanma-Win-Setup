@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)][string]$RepositoryRoot
+    [Parameter(Mandatory = $true)][string]$RepositoryRoot,
+    [switch]$DryRun
 )
 
 Set-StrictMode -Version Latest
@@ -27,6 +28,18 @@ $registryFiles = @(
     'Desktop-Icons-ClassicStartMenu.reg',
     'Explorer-Advanced.reg'
 )
+
+if ($DryRun) {
+    Write-SetupWarning 'Dry run mode enabled: no Windows UI changes will be applied.'
+    foreach ($fileName in $registryFiles) {
+        if (Test-Path (Join-Path $sourceRoot $fileName)) { Write-SetupInfo "[DryRun] Would import registry file: $fileName" }
+    }
+    if (Test-Path (Join-Path $sourceRoot 'quick-access/f01b4d95cf55d32a.automaticDestinations-ms')) {
+        Write-SetupInfo '[DryRun] Would import Quick Access pinned folders database.'
+    }
+    Write-SetupSuccess 'Dry run completed.'
+    return
+}
 
 $appliedChanges = $false
 
