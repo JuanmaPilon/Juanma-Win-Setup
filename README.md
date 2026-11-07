@@ -20,6 +20,7 @@ It is designed to restore a machine to your preferred state quickly: install app
 - Environment variables.
 - Startup apps (Run entries and Startup folder).
 - Terminal setup (Windows Terminal, PowerShell profiles, Oh My Posh, fastfetch).
+- Windhawk (portable) mods and settings.
 
 ## Repository layout
 
@@ -96,3 +97,18 @@ Preview import without writing changes:
 2. Sync or copy private-configs/ to the target machine securely.
 3. On laptop, run the menu and import environment variables and config backups.
 4. Restart session if a setting does not apply immediately.
+
+## Disaster recovery (reinstalling the main PC)
+
+Export everything also creates a rotating ZIP at `%USERPROFILE%\Win-Setup-Backups` (the repo refuses to store it inside itself).
+
+To rebuild the main PC from zero:
+
+1. Keep a copy of that ZIP somewhere off-machine (external drive, cloud, or another PC via LocalSend).
+2. Install Windows, then Git for Windows.
+3. `git clone https://github.com/JuanmaPilon/Juanma-Win-Setup.git`
+4. Extract the newest `Win-Setup-private-configs-*.zip` into the repo so its content lands in `private-configs/`.
+5. Run `Menu.cmd`: install Winget, run full setup, import environment variables (DryRun first), then import config backups.
+6. Sign out/in and open a new terminal to apply shell and UI settings.
+
+What is NOT covered by the bundle (handle manually): apps listed in [configs/manual-installs/README.md](configs/manual-installs/README.md) (ALSEYE BEM, Archon, NVIDIA driver, Canon), game installs managed by launchers, and the pending Firefox profile module.

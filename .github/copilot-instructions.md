@@ -32,7 +32,7 @@ registry/        .reg agrupados para cambios excepcionales
 private-configs/ backups reales (GIT-IGNORED: nunca commitear)
 ```
 
-Módulos de configuración existentes: `startallback`, `powertoys`, `windows-ui`, `startup`, `terminal`, `git`, `environment-variables` (script suelto).
+Módulos de configuración existentes: `startallback`, `powertoys`, `windows-ui`, `startup`, `terminal`, `windhawk`, `git`, `environment-variables` (script suelto).
 
 ## Punto de entrada
 
@@ -75,6 +75,7 @@ Módulos de configuración existentes: `startallback`, `powertoys`, `windows-ui`
 
 - Repo público = solo código y docs. Backups y exports = `private-configs/`.
 - `.gitignore` ya cubre `private-configs/` y bloquea configs públicos sensibles (solo permite `import.ps1` y `README.md`).
+- Backup de recuperación: `scripts/Backup-PrivateConfigs.ps1` genera un ZIP rotativo en `%USERPROFILE%\Win-Setup-Backups` (nunca dentro del repo).
 
 ## Patrón para agregar un módulo nuevo (checklist)
 

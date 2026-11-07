@@ -4,14 +4,14 @@ Restores the terminal look & feel between machines: Windows Terminal, PowerShell
 
 ## What it covers
 
-| Pieza | Origen | Destino |
-|---|---|---|
-| Windows Terminal | `windows-terminal/settings.json` | `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_*\LocalState\settings.json` |
-| PowerShell 7 profile | `profiles/PowerShell/Microsoft.PowerShell_profile.ps1` | `Documents\PowerShell\...` |
-| Windows PowerShell 5.1 profile | `profiles/WindowsPowerShell/Microsoft.PowerShell_profile.ps1` | `Documents\WindowsPowerShell\...` |
-| Temas Oh My Posh | `oh-my-posh/*.omp.json` | `~\.config\oh-my-posh\` |
-| Completions | `completions/*.ps1` | `~\.config\powershell\completions\` |
-| fastfetch | `fastfetch/config.jsonc` | `%APPDATA%\fastfetch\config.jsonc` |
+| Pieza                          | Origen                                                        | Destino                                                                        |
+| ------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Windows Terminal               | `windows-terminal/settings.json`                              | `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_*\LocalState\settings.json` |
+| PowerShell 7 profile           | `profiles/PowerShell/Microsoft.PowerShell_profile.ps1`        | `Documents\PowerShell\...`                                                     |
+| Windows PowerShell 5.1 profile | `profiles/WindowsPowerShell/Microsoft.PowerShell_profile.ps1` | `Documents\WindowsPowerShell\...`                                              |
+| Temas Oh My Posh               | `oh-my-posh/*.omp.json`                                       | `~\.config\oh-my-posh\`                                                        |
+| Completions                    | `completions/*.ps1`                                           | `~\.config\powershell\completions\`                                            |
+| fastfetch                      | `fastfetch/config.jsonc`                                      | `%APPDATA%\fastfetch\config.jsonc`                                             |
 
 ## Dependencias (Winget)
 

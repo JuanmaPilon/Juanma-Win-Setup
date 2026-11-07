@@ -48,3 +48,6 @@ configs/manual-installs/*
 configs/terminal/**
 !configs/terminal/import.ps1
 !configs/terminal/README.md
+configs/windhawk/**
+!configs/windhawk/import.ps1
+!configs/windhawk/README.md

@@ -19,6 +19,7 @@ Esta lista existe para no perderlas en una instalación limpia.
 | Archon App                                             | Sin paquete en Winget (solo existe un agente de Zorus y un "Archon for ARK" de Store, no relacionados) | Guardar el instalador original en `private-configs/manual-installs/archon/`.                                                                   |
 | NVIDIA App + driver                                    | No está en la fuente `winget` (solo existe el ID de Store `XP8CLZL93F5Z4P`)                            | https://www.nvidia.com/en-us/software/nvidia-app/                                                                                              |
 | Canon TS3100 (MP Drivers, IJ Scan Utility, Quick Menu) | Suite específica de hardware                                                                           | https://ij.start.canon                                                                                                                         |
+| Windhawk (portable)                                    | Sin paquete portable en Winget; se instala con el setup NSIS en modo portable                          | `windhawk_setup.exe /S /PORTABLE /D=<ruta>` (descarga: https://github.com/ramensoftware/windhawk/releases)                                     |
 
 ## Notas
 
