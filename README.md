@@ -20,7 +20,7 @@ It is designed to restore a machine to your preferred state quickly: install app
 - Environment variables.
 - Startup apps (Run entries and Startup folder).
 - Terminal setup (Windows Terminal, PowerShell profiles, Oh My Posh, fastfetch).
-- Windhawk (portable) mods and settings.
+- Windhawk mods and settings (normal install with service, or portable install).
 
 ## Repository layout
 

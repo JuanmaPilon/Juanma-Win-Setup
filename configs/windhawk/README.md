@@ -1,44 +1,60 @@
-# Windhawk configuration (portable)
+# Windhawk configuration
 
-Restaura la configuración de **Windhawk en modo portable** (sin registro, sin ProgramData).
+Restaura la configuración de Windhawk. Soporta los **dos modos** de instalación:
 
-## Requisitos
+| Modo | Almacenamiento | Requiere admin |
+|---|---|---|
+| **Normal** (servicio) — recomendado | `HKLM\SOFTWARE\Windhawk` + `%ProgramData%\Windhawk` | Sí (import/export de registro) |
+| Portable | `...\Windhawk\AppData` (INI) | No |
 
-Windhawk instalado en modo portable:
+El export detecta el modo automáticamente (mira `Program Files\Windhawk\windhawk.ini`).
 
-```powershell
-windhawk_setup.exe /S /PORTABLE /D=$env:LOCALAPPDATA\Programs\Windhawk
-```
+## Instalación del programa
 
-El importador solo soporta modo portable (`windhawk.ini` con `[Storage] Portable=1`).
+- Normal: `winget install RamenSoftware.Windhawk` → servicio `Windhawk` (arranca con Windows) + tarea `WindhawkRunUITask` (UI al iniciar sesión).
+- Portable: `windhawk_setup.exe /S /PORTABLE /D=<ruta>` → sin servicio; el autostart por Run key resultó poco confiable.
 
 ## Qué exporta/importa
 
-| Ruta                          | Contenido                                         |
-| ----------------------------- | ------------------------------------------------- |
-| `AppData\settings.ini`        | settings de la app (tema, idioma, etc.)           |
-| `AppData\Engine\settings.ini` | settings del engine (include/exclude de procesos) |
-| `AppData\Engine\Mods\*.ini`   | settings de cada mod instalado                    |
-| `AppData\ModsSource\*.wh.cpp` | fuentes de los mods instalados                    |
+**Modo normal:**
+- `data/windhawk-hklm.reg` (settings de la app, engine y de cada mod)
+- `data/windhawk-hkcu.reg` (configs por usuario, si existen)
+- `data/ModsSource/*.wh.cpp` (fuentes de los mods instalados)
+- `data/userprofile.json`
 
-Se excluye `Symbols\` (caché) y `warning.txt`.
+**Modo portable:**
+- `data/settings.ini`, `data/Engine/settings.ini`
+- `data/Engine/Mods/*.ini` (settings por mod), `data/ModsSource/*.wh.cpp`
+- `data/UIData/user-data/User/*` (settings de la UI)
+
+Siempre se escribe `data/mode.txt` para que el import sepa qué restaurar. Se excluyen cachés (`Symbols`, WebView/VS Code).
 
 ## Flujo en una PC nueva
 
-1. Instalar Windhawk portable (comando de arriba).
-2. Abrirlo una vez y dejar que descargue el engine.
-3. Importar (menú → Import config backups, o `configs\windhawk\import.ps1 -RepositoryRoot <repo>`).
-4. Abrir Windhawk de nuevo: los mods recompilan solos desde `ModsSource`.
+1. Instalar Windhawk normal (`winget install RamenSoftware.Windhawk`).
+2. Abrirlo una vez y **reinstalar los mods desde el catálogo** (los DLLs compilados no viajan; las fuentes sí).
+3. Importar el módulo **desde una PowerShell de administrador** (menú → Import config backups, o `configs\windhawk\import.ps1 -RepositoryRoot <repo>`).
+4. El servicio Windhawk se reinicia solo al final.
 
-## Mods recomendados para taskbar
+## Migración portable → normal (una sola vez)
 
-Buscar en el catálogo de Windhawk (pestaña "Explore"):
+`scripts\Migrate-WindhawkPortableToRegistry.ps1` lee los `.ini` del backup portable y escribe los settings al registro (HKLM). Correr **como administrador**, con los mods ya instalados:
 
-- **Taskbar height and icon size** → altura de la taskbar e íconos.
-- **Taskbar tray icon spacing and grid** → tamaño/espaciado de los íconos de la bandeja.
+```powershell
+.\scripts\Migrate-WindhawkPortableToRegistry.ps1 -RepositoryRoot . -DryRun   # previsualizar
+.\scripts\Migrate-WindhawkPortableToRegistry.ps1 -RepositoryRoot .
+```
+
+## Mods usados en la PC principal
+
+- `windows-11-taskbar-styler`
+- `windows-11-start-menu-styler`
+- `taskbar-notification-icon-spacing`
+- `taskbar-tray-system-icon-tweaks`
 
 ## Advertencias
 
 - No activar "inyectar en juegos" si usás juegos con anti-cheat (Vanguard/LoL).
 - Los mods se actualizan desde el catálogo; una update puede cambiar el esquema de settings.
 - Los binarios del engine no se respaldan (se reinstalan con el instalador); solo viaja la configuración.
+

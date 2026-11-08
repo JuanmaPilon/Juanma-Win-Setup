@@ -34,3 +34,6 @@ DEVCOM.JetBrainsMonoNerdFont
 Fastfetch-cli.Fastfetch
 svenstaro.genact
 cowboy8625.rusty-rain
+
+# Windows customization
+RamenSoftware.Windhawk

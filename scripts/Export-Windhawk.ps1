@@ -17,19 +17,78 @@ else {
     [System.IO.Path]::GetFullPath((Join-Path $repoRoot $OutputRoot))
 }
 
+if (-not (Test-Path $resolvedOutputRoot)) {
+    New-Item -ItemType Directory -Path $resolvedOutputRoot -Force | Out-Null
+}
+
+# Mode detection: normal (registry) install takes precedence
+$normalIni = Join-Path $env:ProgramFiles 'Windhawk\windhawk.ini'
+$normalMode = $false
+if (Test-Path $normalIni) {
+    $normalIniContent = Get-Content $normalIni -Raw
+    if ($normalIniContent -match 'Portable\s*=\s*0') {
+        $normalMode = $true
+    }
+}
+
+if ($normalMode) {
+    $dataDir = Join-Path $resolvedOutputRoot 'data'
+    if (Test-Path $dataDir) {
+        Remove-Item -Path $dataDir -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
+    Set-Content -Path (Join-Path $dataDir 'mode.txt') -Value 'registry'
+
+    try {
+        reg export 'HKLM\SOFTWARE\Windhawk' (Join-Path $dataDir 'windhawk-hklm.reg') /y | Out-Null
+        Write-Host 'Exported HKLM\SOFTWARE\Windhawk' -ForegroundColor Green
+    }
+    catch {
+        Write-Host 'Could not export HKLM\SOFTWARE\Windhawk' -ForegroundColor Yellow
+    }
+
+    if (Test-Path 'HKCU:\Software\Windhawk') {
+        try {
+            reg export 'HKCU\Software\Windhawk' (Join-Path $dataDir 'windhawk-hkcu.reg') /y | Out-Null
+            Write-Host 'Exported HKCU\Software\Windhawk' -ForegroundColor Green
+        }
+        catch {
+            Write-Host 'Could not export HKCU\Software\Windhawk' -ForegroundColor Yellow
+        }
+    }
+
+    $programDataRoot = Join-Path $env:ProgramData 'Windhawk'
+    $sourceFiles = Get-ChildItem (Join-Path $programDataRoot 'ModsSource') -Filter '*.wh.cpp' -File -ErrorAction SilentlyContinue
+    foreach ($sourceFile in $sourceFiles) {
+        $destinationDir = Join-Path $dataDir 'ModsSource'
+        if (-not (Test-Path $destinationDir)) { New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null }
+        Copy-Item $sourceFile.FullName -Destination (Join-Path $destinationDir $sourceFile.Name) -Force
+        Write-Host "Exported Windhawk mod source: ModsSource/$($sourceFile.Name)" -ForegroundColor Green
+    }
+
+    $userProfile = Join-Path $programDataRoot 'userprofile.json'
+    if (Test-Path $userProfile) {
+        Copy-Item $userProfile -Destination (Join-Path $dataDir 'userprofile.json') -Force
+        Write-Host 'Exported Windhawk user profile' -ForegroundColor Green
+    }
+
+    Write-Host "Windhawk configuration exported to $resolvedOutputRoot (registry mode)" -ForegroundColor Green
+    return
+}
+
 if ([string]::IsNullOrWhiteSpace($InstallPath)) {
     $InstallPath = Join-Path $env:LOCALAPPDATA 'Programs\Windhawk'
 }
 
 $iniPath = Join-Path $InstallPath 'windhawk.ini'
 if (-not (Test-Path $iniPath)) {
-    Write-Host "Windhawk portable install not found at $InstallPath. Install it with: windhawk_setup.exe /S /PORTABLE /D=<path>" -ForegroundColor Yellow
+    Write-Host "Windhawk not found (neither normal install in Program Files nor portable at $InstallPath)." -ForegroundColor Yellow
     return
 }
 
 $iniContent = Get-Content $iniPath -Raw
 if ($iniContent -notmatch 'Portable\s*=\s*1') {
-    Write-Host 'Windhawk is installed but not in portable mode. This module only supports portable installs.' -ForegroundColor Yellow
+    Write-Host 'Windhawk portable install not detected. Normal installs are handled in registry mode.' -ForegroundColor Yellow
     return
 }
 
@@ -48,6 +107,8 @@ $previousData = Join-Path $resolvedOutputRoot 'data'
 if (Test-Path $previousData) {
     Remove-Item -Path $previousData -Recurse -Force
 }
+New-Item -ItemType Directory -Path $previousData -Force | Out-Null
+Set-Content -Path (Join-Path $previousData 'mode.txt') -Value 'portable'
 
 function Test-ShouldExportWindhawkFile {
     param([Parameter(Mandatory = $true)][string]$RelativePath)
