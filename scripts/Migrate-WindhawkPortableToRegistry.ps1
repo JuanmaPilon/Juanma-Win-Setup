@@ -39,7 +39,46 @@ if (-not $iniFiles) {
 }
 
 $modBaseKey = 'HKLM:\SOFTWARE\Windhawk\Engine\Mods'
-$installedMods = @(Get-ChildItem $modBaseKey -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PSChildName)
+$programDataRoot = Join-Path $env:ProgramData 'Windhawk'
+$portableAppData = Join-Path $env:LOCALAPPDATA 'Programs\Windhawk\AppData'
+
+# Step 1: copy compiled mod DLLs and shared libraries from the portable install
+$restoredBinaries = 0
+if (Test-Path $portableAppData) {
+    foreach ($arch in @('64', '32')) {
+        $srcArch = Join-Path $portableAppData "Engine/Mods/$arch"
+        if (-not (Test-Path $srcArch)) { continue }
+        $dstArch = Join-Path $programDataRoot "Engine/Mods/$arch"
+        foreach ($binary in Get-ChildItem $srcArch -File -ErrorAction SilentlyContinue) {
+            if ($DryRun) {
+                Write-SetupInfo "[DryRun] Would copy binary: $arch/$($binary.Name)"
+                continue
+            }
+            if (-not (Test-Path $dstArch)) { New-Item -ItemType Directory -Path $dstArch -Force | Out-Null }
+            Copy-Item $binary.FullName -Destination (Join-Path $dstArch $binary.Name) -Force
+            $restoredBinaries++
+        }
+    }
+
+    $srcSources = Join-Path $portableAppData 'ModsSource'
+    if (Test-Path $srcSources) {
+        $dstSources = Join-Path $programDataRoot 'ModsSource'
+        foreach ($source in Get-ChildItem $srcSources -Filter '*.wh.cpp' -File -ErrorAction SilentlyContinue) {
+            if ($DryRun) {
+                Write-SetupInfo "[DryRun] Would copy source: $($source.Name)"
+                continue
+            }
+            if (-not (Test-Path $dstSources)) { New-Item -ItemType Directory -Path $dstSources -Force | Out-Null }
+            Copy-Item $source.FullName -Destination (Join-Path $dstSources $source.Name) -Force
+            $restoredBinaries++
+        }
+    }
+
+    if (-not $DryRun) { Write-SetupSuccess "Restored $restoredBinaries mod binary/source file(s) into ProgramData." }
+}
+else {
+    Write-SetupWarning "Portable install not found at $portableAppData; only settings will be written (mods must be installed from the catalog)."
+}
 
 function Read-IniSection {
     param(
@@ -71,26 +110,20 @@ $skipped = 0
 foreach ($iniFile in $iniFiles) {
     $modId = $iniFile.BaseName
 
-    if ($installedMods -notcontains $modId) {
-        Write-SetupWarning "Mod '$modId' is not installed in Windhawk yet. Install it from the catalog first, then re-run this migration."
-        $skipped++
-        continue
-    }
-
     $modSection = Read-IniSection -Path $iniFile.FullName -Section 'Mod'
     $settingsSection = Read-IniSection -Path $iniFile.FullName -Section 'Settings'
 
     $modKey = Join-Path $modBaseKey $modId
     $settingsKey = Join-Path $modKey 'Settings'
 
-    foreach ($operationalKey in @('Disabled', 'Include', 'Exclude')) {
-        if (-not $modSection.Contains($operationalKey)) { continue }
+    foreach ($modSettingName in $modSection.Keys) {
+        if ($modSettingName -eq 'SettingsChangeTime') { continue }
         if ($DryRun) {
-            Write-SetupInfo "[DryRun] $modId\$operationalKey = $($modSection[$operationalKey])"
+            Write-SetupInfo "[DryRun] $modId\$modSettingName = $($modSection[$modSettingName])"
             continue
         }
         if (-not (Test-Path $modKey)) { New-Item -Path $modKey -Force | Out-Null }
-        Set-ItemProperty -Path $modKey -Name $operationalKey -Value ([string]$modSection[$operationalKey]) -Type String
+        Set-ItemProperty -Path $modKey -Name $modSettingName -Value ([string]$modSection[$modSettingName]) -Type String
     }
 
     foreach ($settingName in $settingsSection.Keys) {
