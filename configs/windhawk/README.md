@@ -2,10 +2,10 @@
 
 Restaura la configuración de Windhawk. Soporta los **dos modos** de instalación:
 
-| Modo | Almacenamiento | Requiere admin |
-|---|---|---|
+| Modo                                | Almacenamiento                                      | Requiere admin                 |
+| ----------------------------------- | --------------------------------------------------- | ------------------------------ |
 | **Normal** (servicio) — recomendado | `HKLM\SOFTWARE\Windhawk` + `%ProgramData%\Windhawk` | Sí (import/export de registro) |
-| Portable | `...\Windhawk\AppData` (INI) | No |
+| Portable                            | `...\Windhawk\AppData` (INI)                        | No                             |
 
 El export detecta el modo automáticamente (mira `Program Files\Windhawk\windhawk.ini`).
 
@@ -17,12 +17,14 @@ El export detecta el modo automáticamente (mira `Program Files\Windhawk\windhaw
 ## Qué exporta/importa
 
 **Modo normal:**
+
 - `data/windhawk-hklm.reg` (settings de la app, engine y de cada mod)
 - `data/windhawk-hkcu.reg` (configs por usuario, si existen)
 - `data/ModsSource/*.wh.cpp` (fuentes de los mods instalados)
 - `data/userprofile.json`
 
 **Modo portable:**
+
 - `data/settings.ini`, `data/Engine/settings.ini`
 - `data/Engine/Mods/*.ini` (settings por mod), `data/ModsSource/*.wh.cpp`
 - `data/UIData/user-data/User/*` (settings de la UI)
@@ -36,14 +38,11 @@ Siempre se escribe `data/mode.txt` para que el import sepa qué restaurar. Se ex
 3. Importar el módulo **desde una PowerShell de administrador** (menú → Import config backups, o `configs\windhawk\import.ps1 -RepositoryRoot <repo>`).
 4. El servicio Windhawk se reinicia solo al final.
 
-## Migración portable → normal (una sola vez)
+## Migración portable → normal (completada)
 
-`scripts\Migrate-WindhawkPortableToRegistry.ps1` lee los `.ini` del backup portable y escribe los settings al registro (HKLM). Correr **como administrador**, con los mods ya instalados:
+La migración de portable a instalación normal ya se hizo en la PC principal (los settings pasaron de INI a `HKLM`). El soporte portable del export/import queda solo como **fallback de lectura** para backups viejos.
 
-```powershell
-.\scripts\Migrate-WindhawkPortableToRegistry.ps1 -RepositoryRoot . -DryRun   # previsualizar
-.\scripts\Migrate-WindhawkPortableToRegistry.ps1 -RepositoryRoot .
-```
+> No mezclar instalaciones: si existe una copia portable vieja abierta, su UI escribe en OTRO storage y los cambios "no se aplican" en el engine del servicio. Usar siempre la UI de `C:\Program Files\Windhawk`.
 
 ## Mods usados en la PC principal
 
@@ -57,4 +56,3 @@ Siempre se escribe `data/mode.txt` para que el import sepa qué restaurar. Se ex
 - No activar "inyectar en juegos" si usás juegos con anti-cheat (Vanguard/LoL).
 - Los mods se actualizan desde el catálogo; una update puede cambiar el esquema de settings.
 - Los binarios del engine no se respaldan (se reinstalan con el instalador); solo viaja la configuración.
-

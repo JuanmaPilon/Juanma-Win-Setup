@@ -29,6 +29,11 @@ if (-not (Test-Path $resolvedOutputRoot)) {
 $startAllBackUserRegPath = Join-Path $resolvedOutputRoot 'StartIsBack-HKCU.reg'
 $startAllBackMachineRegPath = Join-Path $resolvedOutputRoot 'StartIsBack-HKLM.reg'
 
+if (-not (Test-Path 'HKCU:\Software\StartIsBack')) {
+    Write-Host 'StartAllBack is not installed on this machine; skipping StartAllBack export.' -ForegroundColor Yellow
+    return
+}
+
 try {
     reg export 'HKCU\Software\StartIsBack' $startAllBackUserRegPath /y | Out-Null
     Write-Host 'Exported StartAllBack user registry key.' -ForegroundColor Green
@@ -37,12 +42,17 @@ catch {
     Write-Host 'Could not export HKCU\Software\StartIsBack.' -ForegroundColor Yellow
 }
 
-try {
-    reg export 'HKLM\SOFTWARE\StartIsBack' $startAllBackMachineRegPath /y | Out-Null
-    Write-Host 'Exported StartAllBack machine registry key.' -ForegroundColor Green
+if (Test-Path 'HKLM:\SOFTWARE\StartIsBack') {
+    try {
+        reg export 'HKLM\SOFTWARE\StartIsBack' $startAllBackMachineRegPath /y | Out-Null
+        Write-Host 'Exported StartAllBack machine registry key.' -ForegroundColor Green
+    }
+    catch {
+        Write-Host 'HKLM\SOFTWARE\StartIsBack was not exported (insufficient permissions).' -ForegroundColor Yellow
+    }
 }
-catch {
-    Write-Host 'HKLM\SOFTWARE\StartIsBack was not exported (missing key or insufficient permissions).' -ForegroundColor Yellow
+else {
+    Write-Host 'No StartAllBack machine registry key found (normal when per-user install).' -ForegroundColor DarkGray
 }
 
 if ($IncludeShellState) {
