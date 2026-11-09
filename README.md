@@ -14,7 +14,6 @@ It is designed to restore a machine to your preferred state quickly: install app
 ## What this setup restores
 
 - Apps via Winget package list.
-- StartAllBack configuration.
 - PowerToys configuration.
 - Windows UI preferences (mouse and theme settings).
 - Environment variables.
@@ -72,7 +71,7 @@ Sensitive or machine-specific data should not be committed by default.
 
 ## Config coverage ✅
 
-The current setup flow focuses on environment variables, StartAllBack, PowerToys, Windows UI preferences (mouse/theme), startup apps, and terminal configuration. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
+The current setup flow focuses on environment variables, PowerToys, Windows UI preferences (mouse/theme), startup apps, terminal configuration and Windhawk. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
 
 Apps without a Winget package are tracked in [configs/manual-installs/README.md](configs/manual-installs/README.md), with vendor links and instructions to keep installers under `private-configs/manual-installs/`.
 

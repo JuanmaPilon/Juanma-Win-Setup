@@ -32,7 +32,7 @@ registry/        .reg agrupados para cambios excepcionales
 private-configs/ backups reales (GIT-IGNORED: nunca commitear)
 ```
 
-Módulos de configuración existentes: `startallback`, `powertoys`, `windows-ui`, `startup`, `terminal`, `windhawk`, `git`, `environment-variables` (script suelto).
+Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `terminal`, `windhawk`, `git`, `environment-variables` (script suelto).
 
 ## Punto de entrada
 

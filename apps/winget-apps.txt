@@ -7,8 +7,6 @@ Microsoft.DotNet.SDK.10
 Microsoft.VCRedist.2015+.x64
 Microsoft.PowerToys
 Microsoft.WindowsTerminal
-# StartAllBack reemplazado por Windhawk (portable). Descomentar para volver a usarlo.
-# StartIsBack.StartAllBack
 Spotify.Spotify
 Overwolf.CurseForge
 Blitz.Blitz

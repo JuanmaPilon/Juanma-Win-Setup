@@ -15,7 +15,7 @@ function Show-MainMenu {
     Write-SetupMenuItem -Key '1' -Text 'Install Winget' -Hint 'bootstrap del gestor de paquetes'
     Write-SetupMenuItem -Key '2' -Text 'Run full setup' -Hint 'apps + configs + finalize'
     Write-SetupMenuItem -Key '3' -Text 'Import environment variables' -Hint 'variables de usuario/maquina'
-    Write-SetupMenuItem -Key '4' -Text 'Import config backups' -Hint 'startallback, powertoys, terminal, windhawk...'
+    Write-SetupMenuItem -Key '4' -Text 'Import config backups' -Hint 'powertoys, windows-ui, terminal, windhawk...'
     Write-SetupMenuItem -Key '5' -Text 'Export everything' -Hint 'genera private-configs desde esta PC'
     Write-SetupMenuItem -Key '0' -Text 'Exit'
 
@@ -63,14 +63,13 @@ while ($true) {
             Write-Host ''
             Write-SetupRule
             & (Join-Path $repoRoot 'scripts/Export-EnvironmentVariables.ps1')
-            & (Join-Path $repoRoot 'scripts/Export-StartAllBack.ps1')
             & (Join-Path $repoRoot 'scripts/Export-PowerToys.ps1')
             & (Join-Path $repoRoot 'scripts/Export-WindowsUI.ps1') -IncludeExplorerAdvanced -IncludeQuickAccessPins
             & (Join-Path $repoRoot 'scripts/Export-StartupApps.ps1')
             & (Join-Path $repoRoot 'scripts/Export-TerminalConfig.ps1')
             & (Join-Path $repoRoot 'scripts/Export-Windhawk.ps1')
             Write-SetupRule
-            Write-SetupSuccess 'Export completed: environment variables, StartAllBack, PowerToys, Windows UI, startup apps, terminal and Windhawk.'
+            Write-SetupSuccess 'Export completed: environment variables, PowerToys, Windows UI, startup apps, terminal and Windhawk.'
         }
         '0' {
             Write-Host ''
