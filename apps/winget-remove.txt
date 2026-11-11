@@ -1,0 +1,20 @@
+# Packages that must NOT be present on this machine.
+# The cleanup stage (scripts/Remove-DeprecatedApps.ps1) uninstalls any of these it finds.
+# One Winget package ID per line. Comments with #.
+#
+# This file is the "denylist" counterpart of winget-apps.txt.
+
+# Replaced by Mozilla.Firefox
+Zen-Team.Zen-Browser
+
+# Replaced by Windhawk (taskbar + start menu styling)
+StartIsBack.StartAllBack
+
+# Replaced by SimpleStickyNotes
+63BeetleSmurf.PinnyNotes
+
+# No longer used
+ZhornSoftware.Stickies
+
+# No longer used
+ElectronicArts.EADesktop

@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$SkipApps,
+    [switch]$SkipCleanup,
     [switch]$SkipConfigs,
     [switch]$SkipFinalize,
     [switch]$DryRun
@@ -19,6 +20,10 @@ if ($DryRun) {
 
 if (-not $SkipApps) {
     & (Join-Path $repoRoot 'scripts/Install-Apps.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
+}
+
+if (-not $SkipCleanup) {
+    & (Join-Path $repoRoot 'scripts/Remove-DeprecatedApps.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
 }
 
 if (-not $SkipConfigs) {

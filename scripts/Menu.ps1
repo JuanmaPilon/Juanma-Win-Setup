@@ -17,6 +17,8 @@ function Show-MainMenu {
     Write-SetupMenuItem -Key '3' -Text 'Import environment variables' -Hint 'variables de usuario/maquina'
     Write-SetupMenuItem -Key '4' -Text 'Import config backups' -Hint 'powertoys, windows-ui, terminal, windhawk...'
     Write-SetupMenuItem -Key '5' -Text 'Export everything' -Hint 'genera private-configs desde esta PC'
+    Write-SetupMenuItem -Key '6' -Text 'Remove deprecated apps' -Hint 'desinstala lo que ya no se usa (winget-remove.txt)'
+    Write-SetupMenuItem -Key '7' -Text 'Update all apps' -Hint 'winget upgrade --all'
     Write-SetupMenuItem -Key '0' -Text 'Exit'
 
     Write-Host ''
@@ -71,13 +73,19 @@ while ($true) {
             Write-SetupRule
             Write-SetupSuccess 'Export completed: environment variables, PowerToys, Windows UI, startup apps, terminal and Windhawk.'
         }
-        '0' {
-            Write-Host ''
-            Write-SetupSuccess 'Exiting menu.'
-            return
-        }
         '6' {
-            # backwards-compatible exit key
+            Write-Host ''
+            Write-SetupRule
+            & (Join-Path $repoRoot 'scripts/Remove-DeprecatedApps.ps1') -RepositoryRoot $repoRoot
+            Write-SetupRule
+        }
+        '7' {
+            Write-Host ''
+            Write-SetupRule
+            & (Join-Path $repoRoot 'scripts/Update-Apps.ps1') -RepositoryRoot $repoRoot
+            Write-SetupRule
+        }
+        '0' {
             Write-Host ''
             Write-SetupSuccess 'Exiting menu.'
             return

@@ -13,7 +13,7 @@ It is designed to restore a machine to your preferred state quickly: install app
 
 ## What this setup restores
 
-- Apps via Winget package list.
+- Apps via Winget package list (and removal of deprecated ones via `apps/winget-remove.txt`).
 - PowerToys configuration.
 - Windows UI preferences (mouse and theme settings).
 - Environment variables.
@@ -24,6 +24,8 @@ It is designed to restore a machine to your preferred state quickly: install app
 ## Repository layout
 
 - apps/: application manifests and Winget package lists
+- apps/winget-apps.txt: packages to install
+- apps/winget-remove.txt: deprecated packages to uninstall (cleanup stage)
 - configs/: application configuration backups and import hooks
 - registry/: grouped registry files for exceptional changes
 - scripts/: focused PowerShell scripts for setup stages
@@ -51,9 +53,10 @@ Alternative launcher:
 Recommended order on a fresh machine:
 
 1. Install Winget.
-2. Run full setup.
+2. Run full setup (installs apps, removes deprecated ones, imports configs).
 3. Import environment variables.
 4. Import config backups.
+5. After a few days, run "Update all apps" from the menu to catch updates.
 
 ## Notes
 

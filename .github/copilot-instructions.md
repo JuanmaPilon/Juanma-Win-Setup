@@ -37,7 +37,8 @@ Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `te
 ## Punto de entrada
 
 - `Menu.cmd` → `scripts/Menu.ps1` (menú interactivo, la vía recomendada).
-- `Setup.ps1` → Apps + Import-Configs + Finalize (soporta `-DryRun`, `-SkipApps`, `-SkipConfigs`, `-SkipFinalize`).
+- `Setup.ps1` → Apps + Cleanup + Import-Configs + Finalize (soporta `-DryRun`, `-SkipApps`, `-SkipCleanup`, `-SkipConfigs`, `-SkipFinalize`).
+- `scripts/Update-Apps.ps1` → `winget upgrade --all`, reutilizable después de cualquier instalación.
 - `scripts/Import-Configs.ps1` ejecuta **todos** los `configs/**/import.ps1` y continúa aunque uno falle.
 
 ## Convenciones obligatorias
@@ -69,6 +70,7 @@ Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `te
 
 - `apps/winget-apps.txt`: un package ID de Winget por línea, comentarios con `#`.
 - Verificar el ID real con `winget search <nombre>` antes de agregar.
+- `apps/winget-remove.txt`: paquetes deprecados que NO deben estar. `scripts/Remove-DeprecatedApps.ps1` los desinstala (stage de `Setup.ps1`, opción 6 del menú, soporta `-DryRun`). Al reemplazar una app, agregar el ID viejo acá.
 - Apps sin paquete en Winget se documentan en `configs/manual-installs/README.md` (solo docs; los instaladores van a `private-configs/manual-installs/`).
 
 ### Git
