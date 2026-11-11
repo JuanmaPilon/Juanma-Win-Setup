@@ -19,7 +19,7 @@ It is designed to restore a machine to your preferred state quickly: install app
 - Environment variables.
 - Startup apps (Run entries and Startup folder).
 - Terminal setup (Windows Terminal, PowerShell profiles, Oh My Posh, fastfetch).
-- Windhawk mods and settings (normal install with service, or portable install).
+- Windhawk mods and settings (normal install with service, or portable install). Mods travel compiled, so nothing needs to be reinstalled from the catalog.
 
 ## Repository layout
 
@@ -57,6 +57,19 @@ Recommended order on a fresh machine:
 3. Import environment variables.
 4. Import config backups.
 5. After a few days, run "Update all apps" from the menu to catch updates.
+
+Stages that touch `HKLM`/`ProgramData` (the Windhawk registry import) need an elevated session; the menu offers to relaunch itself as administrator when needed.
+
+## Removing deprecated apps
+
+`apps/winget-remove.txt` lists packages that must NOT be present. For each one the cleanup stage:
+
+1. stops the app's running processes (most uninstallers otherwise show a "close the app" dialog),
+2. tries `winget uninstall --silent --disable-interactivity`,
+3. falls back to the vendor uninstaller with its own silent switch (MSI `msiexec /qn`, NSIS `/S`, Inno `/VERYSILENT`, Squirrel `--uninstall`, Firefox-family `helper.exe -ms`),
+4. reports anything that still needs manual removal.
+
+The list format is `PackageId | DisplayNamePattern (optional) | ExtraSilentArgs (optional)`.
 
 ## Notes
 

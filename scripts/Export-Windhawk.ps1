@@ -72,6 +72,76 @@ if ($normalMode) {
         Write-Host 'Exported Windhawk user profile' -ForegroundColor Green
     }
 
+    # Compiled mod DLLs: without these the engine cannot load any mod, even when the
+    # registry and user profile are restored correctly.
+    $modsKey = 'HKLM:\SOFTWARE\Windhawk\Engine\Mods'
+    $manifest = @()
+    if (Test-Path $modsKey) {
+        foreach ($modKey in Get-ChildItem $modsKey -ErrorAction SilentlyContinue) {
+            $modId = $modKey.PSChildName
+            $modProps = Get-ItemProperty $modKey.PSPath -ErrorAction SilentlyContinue
+
+            $libraryFileName = if ($modProps -and $modProps.PSObject.Properties.Name -contains 'LibraryFileName') { $modProps.LibraryFileName } else { $null }
+            $modVersion = if ($modProps -and $modProps.PSObject.Properties.Name -contains 'Version') { $modProps.Version } else { '' }
+            $modArch = if ($modProps -and $modProps.PSObject.Properties.Name -contains 'Architecture') { $modProps.Architecture } else { '' }
+            $modDisabled = if ($modProps -and $modProps.PSObject.Properties.Name -contains 'Disabled') { [int]$modProps.Disabled } else { 0 }
+
+            $archCandidates = if ($modArch -match 'x86-64|x64|64') { @('64', '32') } else { @('32', '64') }
+            $librarySource = $null
+            $libraryArch = $null
+            if ($libraryFileName) {
+                foreach ($arch in $archCandidates) {
+                    $candidatePath = Join-Path $programDataRoot "Engine/Mods/$arch/$libraryFileName"
+                    if (Test-Path $candidatePath) {
+                        $librarySource = $candidatePath
+                        $libraryArch = $arch
+                        break
+                    }
+                }
+            }
+
+            if ($librarySource) {
+                $engineTarget = Join-Path (Join-Path $dataDir 'Engine/Mods') $libraryArch
+                if (-not (Test-Path $engineTarget)) { New-Item -ItemType Directory -Path $engineTarget -Force | Out-Null }
+                Copy-Item $librarySource -Destination (Join-Path $engineTarget $libraryFileName) -Force
+                Write-Host "Exported compiled Windhawk mod: Engine/Mods/$libraryArch/$libraryFileName" -ForegroundColor Green
+            }
+            elseif ($libraryFileName) {
+                Write-Host "WARNING: compiled binary for '$modId' not found ($libraryFileName). It will need recompiling on the target." -ForegroundColor Yellow
+            }
+
+            $manifest += [pscustomobject]@{
+                id              = $modId
+                version         = $modVersion
+                architecture    = $modArch
+                libraryFileName = $libraryFileName
+                disabled        = $modDisabled
+                compiled        = [bool]$librarySource
+            }
+        }
+    }
+
+    # Per-mod writable storage (mods that keep their own state outside the registry).
+    # mod-status/ is a transient runtime cache, never settings.
+    $writableRoot = Join-Path $programDataRoot 'Engine/ModsWritable'
+    if (Test-Path $writableRoot) {
+        foreach ($writableFile in Get-ChildItem $writableRoot -Recurse -File -ErrorAction SilentlyContinue) {
+            if ($writableFile.Name -eq 'warning.txt') { continue }
+            $relativeWritable = $writableFile.FullName.Substring($writableRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+            if ($relativeWritable -match '^(?i)mod-status[\\/]') { continue }
+            $writableTarget = Join-Path (Join-Path $dataDir 'Engine/ModsWritable') (Split-Path -Parent $relativeWritable)
+            if ($writableTarget -and -not (Test-Path $writableTarget)) { New-Item -ItemType Directory -Path $writableTarget -Force | Out-Null }
+            Copy-Item $writableFile.FullName -Destination (Join-Path (Join-Path $dataDir 'Engine/ModsWritable') $relativeWritable) -Force
+            Write-Host "Exported Windhawk mod storage: Engine/ModsWritable/$relativeWritable" -ForegroundColor Green
+        }
+    }
+
+    if ($manifest.Count -gt 0) {
+        $manifest | ConvertTo-Json -Depth 4 | Set-Content -Path (Join-Path $dataDir 'mods-manifest.json')
+        $compiled = @($manifest | Where-Object { $_.compiled }).Count
+        Write-Host "Exported Windhawk mod manifest: $($manifest.Count) mod(s), $compiled with compiled binary" -ForegroundColor Green
+    }
+
     Write-Host "Windhawk configuration exported to $resolvedOutputRoot (registry mode)" -ForegroundColor Green
     return
 }

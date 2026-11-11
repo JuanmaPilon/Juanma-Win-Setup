@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)][string]$RepositoryRoot)
+param(
+    [Parameter(Mandatory = $true)][string]$RepositoryRoot,
+    [switch]$DryRun
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -24,7 +27,7 @@ foreach ($importScript in $importScripts) {
     Write-SetupProgress -Activity 'Importing configuration modules' -Status "$moduleName ($importIndex/$importTotal)" -PercentComplete ([int](($importIndex - 1) * 100 / $importTotal))
     Write-SetupStep "Running import script: $($importScript.FullName)"
     try {
-        & $importScript.FullName -RepositoryRoot $RepositoryRoot
+        & $importScript.FullName -RepositoryRoot $RepositoryRoot -DryRun:$DryRun
     }
     catch {
         Write-SetupWarning "Import script failed: $($_.Exception.Message)"

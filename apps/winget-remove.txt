@@ -1,10 +1,17 @@
 # Packages that must NOT be present on this machine.
 # The cleanup stage (scripts/Remove-DeprecatedApps.ps1) uninstalls any of these it finds.
-# One Winget package ID per line. Comments with #.
+#
+# Format (fields separated by |):
+#   PackageId | DisplayNamePattern (optional) | ExtraSilentArgs (optional)
+#
+# - DisplayNamePattern: text used to locate the entry in "Apps & features" when winget
+#   cannot uninstall silently. Defaults to the last part of the package ID.
+# - ExtraSilentArgs: switch appended to the app's own uninstaller if the automatic
+#   detection is wrong (e.g. /VERYSILENT for Inno Setup).
 #
 # This file is the "denylist" counterpart of winget-apps.txt.
 
-# Replaced by Mozilla.Firefox
+# Replaced by Mozilla.Firefox (Firefox-family uninstaller: uninstall\helper.exe -ms)
 Zen-Team.Zen-Browser
 
 # Replaced by Windhawk (taskbar + start menu styling)
@@ -16,5 +23,5 @@ StartIsBack.StartAllBack
 # No longer used
 ZhornSoftware.Stickies
 
-# No longer used
+# No longer used (often MSI-based: uninstalled with msiexec /qn)
 ElectronicArts.EADesktop

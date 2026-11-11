@@ -71,6 +71,7 @@ Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `te
 - `apps/winget-apps.txt`: un package ID de Winget por línea, comentarios con `#`.
 - Verificar el ID real con `winget search <nombre>` antes de agregar.
 - `apps/winget-remove.txt`: paquetes deprecados que NO deben estar. `scripts/Remove-DeprecatedApps.ps1` los desinstala (stage de `Setup.ps1`, opción 6 del menú, soporta `-DryRun`). Al reemplazar una app, agregar el ID viejo acá.
+- Formato de `winget-remove.txt`: `PackageId | DisplayNamePattern | ExtraSilentArgs` (los dos últimos opcionales). El script mata los procesos de la app, intenta `winget uninstall --silent` y cae al uninstaller propio con switch silencioso (`-AllowInteractiveFallback` como último recurso).
 - Apps sin paquete en Winget se documentan en `configs/manual-installs/README.md` (solo docs; los instaladores van a `private-configs/manual-installs/`).
 
 ### Git
@@ -101,6 +102,8 @@ Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `te
 - Parser de startup que cortaba comandos sin comillas en el primer espacio → usar regex sobre la ruta con extensión (`.exe|.bat|.cmd|.lnk|.msc|.com`).
 - PowerToys: `backup_restore_settings.json` en `%LOCALAPPDATA%/PowerToys` (runtime-backup) y `.ptb` en `Documents/PowerToys/Backup` son necesarios para Command Palette y atajos.
 - Visibilidad de íconos de bandeja depende de Windows (`HKCU\Control Panel\NotifyIconSettings`), no de PowerToys.
+- Windhawk (modo registro): un mod "existe" solo si están las tres cosas → clave `HKLM\SOFTWARE\Windhawk\Engine\Mods\<id>` (con `LibraryFileName`), el DLL en `%ProgramData%\Windhawk\Engine\Mods\<arch>\<LibraryFileName>` y la entrada en `userprofile.json`. Si falta el DLL, la UI muestra cero mods. El export debe incluir `data/Engine/Mods/32|64/*.dll` (nunca `ModsWritable\mod-status`, es caché) y el import debe **parar la UI** (`Windhawk.exe`) antes de escribir, porque el proceso reescribe `userprofile.json` al cerrarse.
+- El import de Windhawk detecta el modo ANTES de cualquier chequeo de ruta portable; antes abortaba con "portable install not found" y nunca tocaba la instalación normal.
 
 ## Pendientes conocidos
 

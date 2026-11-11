@@ -7,9 +7,43 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Import-Module (Join-Path $repoRoot 'modules/SetupHelpers.psm1') -Force
 
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+$isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+
+function Invoke-ElevatedScript {
+    param(
+        [Parameter(Mandatory = $true)][string]$ScriptPath,
+        [string[]]$ScriptArguments = @(),
+        [switch]$KeepOpen
+    )
+
+    $argumentList = @('-NoProfile', '-ExecutionPolicy', 'Bypass')
+    if ($KeepOpen) { $argumentList += '-NoExit' }
+    $argumentList += @('-File', $ScriptPath) + $ScriptArguments
+
+    Start-Process powershell.exe -Verb RunAs -ArgumentList $argumentList | Out-Null
+}
+
+function Test-NeedsElevation {
+    param([string]$Action)
+
+    if ($isAdmin) { return $false }
+
+    Write-SetupWarning "$Action necesita privilegios de administrador (registro HKLM, ProgramData y servicio de Windhawk)."
+    $answer = Read-Host 'Ejecutar en una ventana elevada? (y/n)'
+    return ($answer -match '^(y|yes|s|si)$')
+}
+
 function Show-MainMenu {
     Clear-Host
     Write-SetupBanner -Title 'WIN-SETUP' -Subtitle ("Repositorio: {0}" -f $repoRoot)
+    Write-Host ''
+    if ($isAdmin) {
+        Write-SetupInfo 'Sesion: administrador'
+    }
+    else {
+        Write-SetupInfo 'Sesion: usuario (algunas importaciones pediran elevacion)'
+    }
     Write-Host ''
 
     Write-SetupMenuItem -Key '1' -Text 'Install Winget' -Hint 'bootstrap del gestor de paquetes'
@@ -46,7 +80,13 @@ while ($true) {
         '2' {
             Write-Host ''
             Write-SetupRule
-            & (Join-Path $repoRoot 'Setup.ps1')
+            if (Test-NeedsElevation -Action 'El setup completo') {
+                Invoke-ElevatedScript -ScriptPath (Join-Path $repoRoot 'Setup.ps1') -KeepOpen
+                Write-SetupSuccess 'Setup iniciado en una ventana elevada.'
+            }
+            else {
+                & (Join-Path $repoRoot 'Setup.ps1')
+            }
             Write-SetupRule
         }
         '3' {
@@ -58,7 +98,13 @@ while ($true) {
         '4' {
             Write-Host ''
             Write-SetupRule
-            & (Join-Path $repoRoot 'scripts/Import-Configs.ps1') -RepositoryRoot $repoRoot
+            if (Test-NeedsElevation -Action 'Importar los backups de configuracion') {
+                Invoke-ElevatedScript -ScriptPath (Join-Path $repoRoot 'scripts/Import-Configs.ps1') -ScriptArguments @('-RepositoryRoot', $repoRoot) -KeepOpen
+                Write-SetupSuccess 'Import iniciado en una ventana elevada.'
+            }
+            else {
+                & (Join-Path $repoRoot 'scripts/Import-Configs.ps1') -RepositoryRoot $repoRoot
+            }
             Write-SetupRule
         }
         '5' {

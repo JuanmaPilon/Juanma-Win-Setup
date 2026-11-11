@@ -27,7 +27,7 @@ if (-not $SkipCleanup) {
 }
 
 if (-not $SkipConfigs) {
-    & (Join-Path $repoRoot 'scripts/Import-Configs.ps1') -RepositoryRoot $repoRoot
+    & (Join-Path $repoRoot 'scripts/Import-Configs.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
 }
 
 if (-not $SkipFinalize) {
