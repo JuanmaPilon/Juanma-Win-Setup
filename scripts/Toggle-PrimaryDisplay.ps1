@@ -2,7 +2,9 @@
 param(
     [switch]$DryRun,
     [string]$TargetDisplay,
-    [switch]$Restore
+    [switch]$Restore,
+    [switch]$ShowErrors,
+    [switch]$Diagnose
 )
 
 Set-StrictMode -Version Latest
@@ -64,6 +66,7 @@ namespace WinSetupDisplay
         public const int DM_PELSHEIGHT = 0x00100000;
         public const int CDS_UPDATEREGISTRY = 0x00000001;
         public const int CDS_SET_PRIMARY = 0x00000010;
+        public const int CDS_NORESET = 0x10000000;
         public const int ENUM_CURRENT_SETTINGS = -1;
 
         [DllImport("user32.dll", EntryPoint = "EnumDisplaySettingsExA", CharSet = CharSet.Ansi, ExactSpelling = true)]
@@ -71,6 +74,10 @@ namespace WinSetupDisplay
 
         [DllImport("user32.dll", EntryPoint = "ChangeDisplaySettingsExA", CharSet = CharSet.Ansi, ExactSpelling = true)]
         public static extern int ChangeDisplaySettingsEx(string deviceName, ref DEVMODE devMode, IntPtr hwnd, int flags, IntPtr lParam);
+
+        // Commits a CDS_NORESET batch: deviceName and devMode are NULL on purpose.
+        [DllImport("user32.dll", EntryPoint = "ChangeDisplaySettingsExA", CharSet = CharSet.Ansi, ExactSpelling = true)]
+        public static extern int ChangeDisplaySettingsExCommit(string deviceName, IntPtr devMode, IntPtr hwnd, int flags, IntPtr lParam);
     }
 }
 '@
@@ -96,21 +103,71 @@ function Get-DisplayState {
     return $state
 }
 
+function Set-DisplayLayout {
+    <#
+        Applies a full set of positions in one batch and commits it. Windows only accepts a
+        primary change when the whole arrangement arrives together: CDS_SET_PRIMARY on its own
+        just repositions the display and the system puts it back in the first free slot.
+        The list is applied in order, so the new primary (0,0) must come first: moving the old
+        primary off (0,0) before the new one is there makes the whole batch invalid.
+    #>
+    param([Parameter(Mandatory = $true)][object[]]$Layout)
+
+    $problems = @()
+    foreach ($entry in $Layout) {
+        $dm = New-Object WinSetupDisplay.DEVMODE
+        $dm.dmSize = [Int16][System.Runtime.InteropServices.Marshal]::SizeOf([type]'WinSetupDisplay.DEVMODE')
+        if (-not [WinSetupDisplay.Display]::EnumDisplaySettingsEx($entry.Device, [WinSetupDisplay.Display]::ENUM_CURRENT_SETTINGS, [ref]$dm, 0)) {
+            $problems += "$($entry.Device) (no se pudo leer su modo actual)"
+            continue
+        }
+
+        $dm.dmPositionX = $entry.X
+        $dm.dmPositionY = $entry.Y
+        $dm.dmFields = $dm.dmFields -bor [WinSetupDisplay.Display]::DM_POSITION
+
+        $flags = [WinSetupDisplay.Display]::CDS_NORESET -bor [WinSetupDisplay.Display]::CDS_UPDATEREGISTRY
+        $rc = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($entry.Device, [ref]$dm, [IntPtr]::Zero, $flags, [IntPtr]::Zero)
+        if ($rc -ne 0) { $problems += "$($entry.Device) (código $rc)" }
+    }
+
+    $commit = [WinSetupDisplay.Display]::ChangeDisplaySettingsExCommit($null, [IntPtr]::Zero, [IntPtr]::Zero, 0, [IntPtr]::Zero)
+    return [pscustomobject]@{ Commit = $commit; Problems = $problems }
+}
+
 function Set-PrimaryDisplay {
+    <#
+        Documented combination for changing the primary: place the display at (0,0), ask for
+        CDS_SET_PRIMARY inside a CDS_NORESET batch and commit. Windows then rearranges the rest
+        of the displays by itself.
+    #>
     param([Parameter(Mandatory = $true)][string]$DeviceName)
 
     $dm = New-Object WinSetupDisplay.DEVMODE
     $dm.dmSize = [Int16][System.Runtime.InteropServices.Marshal]::SizeOf([type]'WinSetupDisplay.DEVMODE')
     if (-not [WinSetupDisplay.Display]::EnumDisplaySettingsEx($DeviceName, [WinSetupDisplay.Display]::ENUM_CURRENT_SETTINGS, [ref]$dm, 0)) {
-        throw "No se pudo leer el modo actual de $DeviceName."
+        return [pscustomobject]@{ Ok = $false; Detail = 'no se pudo leer el modo actual'; Code = -1; Commit = -1 }
     }
 
     $dm.dmPositionX = 0
     $dm.dmPositionY = 0
     $dm.dmFields = $dm.dmFields -bor [WinSetupDisplay.Display]::DM_POSITION
 
-    $flags = [WinSetupDisplay.Display]::CDS_UPDATEREGISTRY -bor [WinSetupDisplay.Display]::CDS_SET_PRIMARY
-    return [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($DeviceName, [ref]$dm, [IntPtr]::Zero, $flags, [IntPtr]::Zero)
+    $flags = [WinSetupDisplay.Display]::CDS_SET_PRIMARY -bor [WinSetupDisplay.Display]::CDS_UPDATEREGISTRY -bor [WinSetupDisplay.Display]::CDS_NORESET
+    $rc = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($DeviceName, [ref]$dm, [IntPtr]::Zero, $flags, [IntPtr]::Zero)
+    $commit = [WinSetupDisplay.Display]::ChangeDisplaySettingsExCommit($null, [IntPtr]::Zero, [IntPtr]::Zero, 0, [IntPtr]::Zero)
+
+    $ok = ($rc -eq 0 -and $commit -eq 0)
+    return [pscustomobject]@{ Ok = $ok; Detail = ''; Code = $rc; Commit = $commit }
+}
+
+function Show-Failure {
+    param([string]$Message)
+
+    Write-SetupError $Message
+    if ($ShowErrors) {
+        [void][System.Windows.Forms.MessageBox]::Show($Message, 'Cambiar pantalla principal', 'OK', 'Warning')
+    }
 }
 
 # --- Estado actual -------------------------------------------------------------------
@@ -154,6 +211,44 @@ foreach ($display in $before) {
     Write-SetupInfo ("  {0}: {1}x{2} en ({3},{4}){5}" -f $display.Device, $display.Width, $display.Height, $display.X, $display.Y, $(if ($isPrimary) { '  <- principal' } else { '' }))
 }
 
+if ($Diagnose) {
+    Write-SetupStep 'Diagnóstico'
+    Write-SetupInfo ("sizeof(DEVMODE) = {0} (esperado 156)" -f [System.Runtime.InteropServices.Marshal]::SizeOf([type]'WinSetupDisplay.DEVMODE'))
+    foreach ($display in $before) {
+        # A: apply the identical mode, no flags. Proves the DEVMODE is accepted.
+        $dmA = New-Object WinSetupDisplay.DEVMODE
+        $dmA.dmSize = [Int16][System.Runtime.InteropServices.Marshal]::SizeOf([type]'WinSetupDisplay.DEVMODE')
+        $null = [WinSetupDisplay.Display]::EnumDisplaySettingsEx($display.Device, [WinSetupDisplay.Display]::ENUM_CURRENT_SETTINGS, [ref]$dmA, 0)
+        $rcA = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($display.Device, [ref]$dmA, [IntPtr]::Zero, 0, [IntPtr]::Zero)
+
+        # B: same mode + CDS_TEST. Validates without applying.
+        $rcB = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($display.Device, [ref]$dmA, [IntPtr]::Zero, 2, [IntPtr]::Zero)
+
+        # C: only the position field marked as changed, same values.
+        $dmC = $dmA
+        $dmC.dmFields = [WinSetupDisplay.Display]::DM_POSITION
+        $rcC = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($display.Device, [ref]$dmC, [IntPtr]::Zero, 2, [IntPtr]::Zero)
+
+        Write-SetupInfo ("  {0}: modo actual={1}, test modo={2}, test solo-posición={3}" -f $display.Device, $rcA, $rcB, $rcC)
+
+        # D/E: which CDS_NORESET combinations does this driver accept?
+        $dmD = $dmA
+        $dmD.dmFields = [WinSetupDisplay.Display]::DM_POSITION
+        $rcD = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($display.Device, [ref]$dmD, [IntPtr]::Zero, [WinSetupDisplay.Display]::CDS_NORESET, [IntPtr]::Zero)
+
+        $dmE = $dmA
+        $dmE.dmFields = [WinSetupDisplay.Display]::DM_POSITION
+        $flagsE = [WinSetupDisplay.Display]::CDS_NORESET -bor [WinSetupDisplay.Display]::CDS_SET_PRIMARY
+        $rcE = [WinSetupDisplay.Display]::ChangeDisplaySettingsEx($display.Device, [ref]$dmE, [IntPtr]::Zero, $flagsE, [IntPtr]::Zero)
+
+        Write-SetupInfo ("      NORESET={0}  NORESET+SET_PRIMARY={1}" -f $rcD, $rcE)
+    }
+    $commitRc = [WinSetupDisplay.Display]::ChangeDisplaySettingsExCommit($null, [IntPtr]::Zero, [IntPtr]::Zero, 0, [IntPtr]::Zero)
+    Write-SetupInfo ("      commit del lote = {0}" -f $commitRc)
+    Write-SetupWarning 'Códigos: 0 = éxito, -1 = FAILED (driver rechaza), -5 = BADPARAM (flags/estructura).'
+    return
+}
+
 if ($DryRun) {
     Write-SetupWarning 'Dry run: no se cambia nada.'
     Write-SetupInfo ("Pasaría a principal: {0} (el actual es {1})" -f $targetScreen.DeviceName, $primaryScreen.DeviceName)
@@ -161,17 +256,36 @@ if ($DryRun) {
     return
 }
 
-$result = Set-PrimaryDisplay -DeviceName $targetScreen.DeviceName
+# New arrangement: the target goes to (0,0) and the rest keep their side, so the
+# physical layout (and where the mouse crosses) stays the same.
+$oldLayout = @()
+$newLayout = @()
+foreach ($display in $before) {
+    $oldLayout += [pscustomobject]@{ Device = $display.Device; X = $display.X; Y = $display.Y }
+}
 
-if ($result -ne 0) {
-    Write-SetupError "ChangeDisplaySettingsEx devolvió $result (0 = éxito). No se aplicó el cambio."
-    switch ($result) {
-        1 { Write-SetupWarning 'Windows pide reiniciar para aplicar el cambio.' }
-        -2 { Write-SetupWarning 'El modo de video no es válido para ese monitor.' }
-        -5 { Write-SetupWarning 'Parámetro inválido (BADPARAM).' }
-        default { Write-SetupWarning 'Probá desde Configuración > Pantalla si se repite.' }
+$targetState = $before | Where-Object { $_.Device -eq $targetScreen.DeviceName } | Select-Object -First 1
+$newLayout += [pscustomobject]@{ Device = $targetScreen.DeviceName; X = 0; Y = 0 }
+
+# Deterministic order: (0,0) is already claimed, so validating the old primary off it is legal.
+foreach ($display in $before) {
+    if ($display.Device -eq $targetScreen.DeviceName) { continue }
+    $newX = if ($display.X -lt 0) { -$display.Width } else { $targetState.Width }
+    $newLayout += [pscustomobject]@{ Device = $display.Device; X = $newX; Y = 0 }
+}
+
+# Strategy 1: CDS_SET_PRIMARY inside a NORESET batch; Windows moves the rest itself.
+$primaryResult = Set-PrimaryDisplay -DeviceName $targetScreen.DeviceName
+if (-not $primaryResult.Ok) {
+    Write-SetupInfo ("CDS_SET_PRIMARY devolvió $($primaryResult.Code) / commit $($primaryResult.Commit); probando el arreglo completo...")
+    $applied = Set-DisplayLayout -Layout $newLayout
+    if ($applied.Commit -ne 0 -or $applied.Problems.Count -gt 0) {
+        $detail = if ($applied.Problems.Count -gt 0) { " ($($applied.Problems -join ', '))" } else { '' }
+        Show-Failure "No se pudo aplicar el cambio: código $($applied.Commit)$detail."
+        [void](Set-DisplayLayout -Layout $oldLayout)
+        Write-SetupWarning 'Se dejó el arreglo anterior.'
+        return
     }
-    return
 }
 
 # Verify through the driver (Screen.AllScreens caches after the first access).
@@ -196,15 +310,17 @@ if ($newPrimary -and $newPrimary.Device -eq $targetScreen.DeviceName -and -not $
     return
 }
 
-# Something went wrong: put the previous primary back before returning.
-Write-SetupError 'El cambio no quedó como se esperaba; revirtiendo.'
+# Something went wrong: put the previous arrangement back before returning.
+$reason = if ($overlap) { 'quedaron monitores superpuestos' } else { 'Windows no cambió el principal' }
+Show-Failure "No se pudo cambiar el principal ($reason).`n`nEn Windows 11 esta build rechaza CDS_NORESET con BADFLAGS, así que ChangeDisplaySettingsEx ya no puede ceder la primacía. Alternativas:`n  - Configuración > Pantalla > elegir monitor > 'Usar como pantalla principal'`n  - MultiMonitorTool (NirSoft, portable): /SetPrimary`n  - Start11 (pago): abre el Start en el monitor del mouse"
+[void](Set-DisplayLayout -Layout $oldLayout)
 if ($primaryScreen) {
-    $revert = Set-PrimaryDisplay -DeviceName $primaryScreen.DeviceName
-    if ($revert -eq 0) {
-        Write-SetupWarning ("Se restauró {0} como principal." -f $primaryScreen.DeviceName)
-    }
-    else {
-        Write-SetupError "No se pudo revertir (código $revert). Abrí Configuración > Pantalla y acomodá a mano."
-    }
+    [void](Set-PrimaryDisplay -DeviceName $primaryScreen.DeviceName)
 }
-if ($overlap) { Write-SetupWarning 'Se detectaron monitores superpuestos.' }
+$restored = Get-DisplayState -DeviceNames $deviceNames | Where-Object { $_.X -eq 0 -and $_.Y -eq 0 } | Select-Object -First 1
+if ($restored) {
+    Write-SetupWarning ("Se restauró {0} como principal." -f $restored.Device)
+}
+else {
+    Write-SetupError 'No se pudo revertir. Abrí Configuración > Pantalla y acomodá a mano.'
+}
