@@ -41,6 +41,17 @@ if (-not (Test-Path $configPath)) {
 Copy-Item $configPath -Destination (Join-Path $resolvedOutputRoot 'config.toml') -Force
 Write-Host 'Exported Wisp config: config.toml' -ForegroundColor Green
 
+# Pinned dock apps live in their own file, not in config.toml (src/dock/pins.rs)
+$pinsPath = Join-Path $SourceRoot 'dock-pins.toml'
+if (Test-Path $pinsPath) {
+    Copy-Item $pinsPath -Destination (Join-Path $resolvedOutputRoot 'dock-pins.toml') -Force
+    $pinCount = @(Select-String -Path $pinsPath -Pattern '^\[\[pin\]\]' -AllMatches).Count
+    Write-Host "Exported Wisp dock pins: dock-pins.toml ($pinCount app(s))" -ForegroundColor Green
+}
+else {
+    Write-Host 'No dock pins yet (dock-pins.toml not found).' -ForegroundColor Yellow
+}
+
 # Custom launcher panels (optional)
 $surfacesRoot = Join-Path $SourceRoot 'surfaces'
 if (Test-Path $surfacesRoot) {

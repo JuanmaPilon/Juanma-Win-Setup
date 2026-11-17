@@ -51,6 +51,12 @@ if (-not (Test-Path $wispExe)) {
 $filesToCopy = @()
 $filesToCopy += [pscustomobject]@{ Source = $configSource; Relative = 'config.toml' }
 
+# Pinned dock apps live in their own file, not in config.toml
+$pinsSource = Join-Path $sourceRoot 'dock-pins.toml'
+if (Test-Path $pinsSource) {
+    $filesToCopy += [pscustomobject]@{ Source = $pinsSource; Relative = 'dock-pins.toml' }
+}
+
 $surfacesSource = Join-Path $sourceRoot 'surfaces'
 if (Test-Path $surfacesSource) {
     foreach ($surfaceFile in Get-ChildItem $surfacesSource -File -Filter '*.toml' -ErrorAction SilentlyContinue) {

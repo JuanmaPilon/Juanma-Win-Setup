@@ -17,6 +17,7 @@ Wisp no está firmado, así que SmartScreen va a avisar la primera vez (Más inf
 ## Qué exporta/importa
 
 - `config.toml` — toda la configuración (dock, launcher, apariencia, búsqueda).
+- `dock-pins.toml` — las apps pineadas al dock, con su orden (archivo aparte, **no** está en `config.toml`).
 - `surfaces/*.toml` — paneles propios del launcher, si los tenés.
 - `_install.txt` — versión y ruta del `.exe` desde donde se exportó (solo diagnóstico).
 
@@ -45,6 +46,25 @@ Comandos útiles del launcher: `bt` (dispositivos Bluetooth pareados), `wifi off
 ## Autostart
 
 Wisp se registra solo con la clave `HKCU\...\Run` llamada `Wisp`. Eso ya lo captura `configs/startup`, así que no hace falta duplicarlo a mano.
+
+## Cómo pinear apps al dock
+
+1. Abrí la app (tiene que estar en el dock para poder pinearla: Wisp no tiene catálogo de apps).
+2. Clic derecho sobre su icono en el dock → **Pin to dock**.
+3. Para reordenar, arrastrá el icono entre los pines; soltarlo entre las apps corrientes lo despinea.
+
+Los pines se guardan en `%APPDATA%\wisp\dock-pins.toml` y **no** en `config.toml`, así que el export los
+respaldá aparte (`dock-pins.toml`). Sin ese archivo, un restore deja el dock sin pines.
+
+```toml
+[[pin]]
+id = "C:\\Windows\\notepad.exe"
+name = "Notepad"
+path = "C:\\Windows\\notepad.exe"
+```
+
+No hay cajón de apps ni carpetas en el dock: lo más parecido es pinear las de uso diario y usar el launcher
+(bandeja vacía = apps recientes) o el menú Start (`Win`) para el resto.
 
 ## Paneles propios (`surfaces/`)
 
