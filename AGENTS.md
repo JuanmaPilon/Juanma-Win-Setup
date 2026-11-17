@@ -40,6 +40,22 @@ Flujo esperado en una máquina nueva:
 - Resolver rutas desde `$PSScriptRoot`, nunca desde el directorio actual.
 - Todo importador acepta `-RepositoryRoot` y `-DryRun`, y hace backup de lo que pisa (`*.bak-<timestamp>`).
 
+## Flujo de trabajo con Git
+
+Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre `main`.
+
+- **Commitear y pushear directo a `main`.** No crear ramas de feature, no abrir PRs, no hacer forks.
+  Las "buenas prácticas" de PR + review no aplican acá; no las propongas.
+- Los avisos del remoto al pushear (`Bypassed rule violations for refs/heads/main`: *Commits must have
+  verified signatures*, *Changes must be made through a pull request*, *Cannot change this locked branch*)
+  son **esperados**: hay branch protection configurada en GitHub y el push pasa por ser el dueño.
+  No hay nada que arreglar — **no** cambies la configuración del repo ni abras un PR para "cumplir".
+- Mensajes de commit en imperativo y con scope, como los que ya usa el repo:
+  `feat(wisp):`, `fix(windhawk):`, `docs(audio):`, `chore:`. Un commit por cambio coherente.
+  Si el "por qué" no es obvio, agregar un segundo `-m` con el cuerpo.
+- Nunca `git push --force` ni reescribir historia ya pusheada, salvo pedido explícito del dueño.
+- Validar antes de commitear: ver la receta de validación más abajo.
+
 ## Mapa del repo
 
 | Ruta                        | Qué hay                                                                                     |

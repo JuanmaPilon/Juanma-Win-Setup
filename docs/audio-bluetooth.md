@@ -40,11 +40,11 @@ Efecto: queda solo el endpoint A2DP. Windows ya no tiene a qué cambiarse y el a
 Revisado el 2026-11-16 sobre el log `System`, que cubre desde 2026-04-08 (todo el período en que se usó
 SoundSwitch la primera vez):
 
-| Chequeo                                           | Resultado |
-| ------------------------------------------------- | --------- |
-| `TDR` / evento 4101 (driver de video reseteado)   | 0 eventos |
-| Reinicios de `Audiosrv` / `AudioEndpointBuilder`  | 0 eventos |
-| Crashes de SoundSwitch en el log `Application`    | 0 eventos |
+| Chequeo                                          | Resultado |
+| ------------------------------------------------ | --------- |
+| `TDR` / evento 4101 (driver de video reseteado)  | 0 eventos |
+| Reinicios de `Audiosrv` / `AudioEndpointBuilder` | 0 eventos |
+| Crashes de SoundSwitch en el log `Application`   | 0 eventos |
 
 El parpadeo **no dejó ninguna huella en el log**. Eso descarta las explicaciones "graves": el driver de video
 nunca se cayó y los servicios de audio nunca se reiniciaron. Si "todos los dispositivos dejaran de funcionar
@@ -118,23 +118,23 @@ Así nunca se queda sin herramienta para salida/entrada. SoundSwitch se instala 
 
 ### Paso 1 — Configuración de mínimo riesgo
 
-| Ajuste                               | Valor            | Por qué                                          |
-| ------------------------------------ | ---------------- | ------------------------------------------------ |
-| **Notifications**                    | **Sound only**   | Sospechoso #1: el banner es el overlay           |
-| Communication device switching       | OFF              | Dispara callbacks a Discord y juegos             |
-| Device Changed Triggers              | OFF              | Watchdog que pelea con Windows                   |
-| App / Window triggers                | OFF              | Loops de monitoreo de foco                       |
-| Auto-updater                         | Notify           | Que no se actualice a mitad del test             |
-| Perfiles                             | Uno, solo playback | Menos superficie                               |
+| Ajuste                         | Valor              | Por qué                                |
+| ------------------------------ | ------------------ | -------------------------------------- |
+| **Notifications**              | **Sound only**     | Sospechoso #1: el banner es el overlay |
+| Communication device switching | OFF                | Dispara callbacks a Discord y juegos   |
+| Device Changed Triggers        | OFF                | Watchdog que pelea con Windows         |
+| App / Window triggers          | OFF                | Loops de monitoreo de foco             |
+| Auto-updater                   | Notify             | Que no se actualice a mitad del test   |
+| Perfiles                       | Uno, solo playback | Menos superficie                       |
 
 ### Paso 2 — Escalera de pruebas y criterio de corte
 
-| Fase | Qué se hace                                                  | Si falla                                  |
-| ---- | ------------------------------------------------------------ | ----------------------------------------- |
-| A    | 15 min: 30 cambios de dispositivo seguidos, en escritorio     | Es el cambio en sí → abandonar            |
-| B    | 1 día de uso normal, sin juegos                               | Es del uso diario → abandonar             |
-| C    | Una sesión de juego con un cambio en el medio                  | Vuelve el blink → abandonar definitivamente |
-| D    | Opcional: habilitar **un** trigger (device changed, 1 device)  | Rompe → volver a config de C              |
+| Fase | Qué se hace                                                   | Si falla                                    |
+| ---- | ------------------------------------------------------------- | ------------------------------------------- |
+| A    | 15 min: 30 cambios de dispositivo seguidos, en escritorio     | Es el cambio en sí → abandonar              |
+| B    | 1 día de uso normal, sin juegos                               | Es del uso diario → abandonar               |
+| C    | Una sesión de juego con un cambio en el medio                 | Vuelve el blink → abandonar definitivamente |
+| D    | Opcional: habilitar **un** trigger (device changed, 1 device) | Rompe → volver a config de C                |
 
 La fase A es la clave: separa "cambiar el dispositivo rompe algo" de "el overlay rompe algo".
 
@@ -148,11 +148,11 @@ Get-WinEvent -FilterHashtable @{LogName='System'; Id=4101} -MaxEvents 5
 Get-WinEvent -LogName System -MaxEvents 300 | Where-Object Message -match 'Audiosrv|AudioEndpointBuilder'
 ```
 
-| Resultado                | Conclusión                                   |
-| ------------------------ | -------------------------------------------- |
-| Evento 4101              | Overlay vs fullscreen → culpable el banner    |
-| Reinicio de `Audiosrv`   | Problema de la API de cambio de dispositivo   |
-| Nada (como la 1ª vez)    | DWM / compositor → otra vez el banner         |
+| Resultado              | Conclusión                                  |
+| ---------------------- | ------------------------------------------- |
+| Evento 4101            | Overlay vs fullscreen → culpable el banner  |
+| Reinicio de `Audiosrv` | Problema de la API de cambio de dispositivo |
+| Nada (como la 1ª vez)  | DWM / compositor → otra vez el banner       |
 
 ### Paso 4 — Kill switch
 
@@ -180,11 +180,11 @@ El valor por defecto era **5 (banner)**. Se editó
 `%APPDATA%\SoundSwitch\SoundSwitchConfiguration.json` con la app **cerrada** (si está abierta pisa el archivo
 al salir, misma trampa que Windhawk y Wisp):
 
-| Campo                       | Antes | Ahora | Significado          |
-| --------------------------- | ----- | ----- | -------------------- |
-| `SwitchDeviceNotification`  | 5     | **1** | Solo sonido          |
-| `SwitchProfileNotification` | 5     | **1** | Solo sonido          |
-| `MicrophoneMuteNotification`| 5     | **1** | Solo sonido          |
+| Campo                        | Antes | Ahora | Significado |
+| ---------------------------- | ----- | ----- | ----------- |
+| `SwitchDeviceNotification`   | 5     | **1** | Solo sonido |
+| `SwitchProfileNotification`  | 5     | **1** | Solo sonido |
+| `MicrophoneMuteNotification` | 5     | **1** | Solo sonido |
 
 `ChangeCommunications` y `SwitchForegroundProgram` ya estaban en `false`, y no hay perfiles ni reglas por app.
 
@@ -193,13 +193,13 @@ El veredicto se escribe acá cuando esté.
 
 ## Resumen de estado
 
-| Problema                             | Solución                                                | Estado                        |
-| ------------------------------------ | ------------------------------------------------------- | ----------------------------- |
-| Perfil Hands-Free agarra el audio    | Destildar "Manos libres Telephony"                      | ✅ aplicado, en observación   |
-| Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)        | 🔄 reintento en curso         |
-| Dispositivo de audio incorrecto      | Sin automatización por ahora; el toggle HFP ataca la causa | ⏸ pendiente                |
-| Toasts en el monitor equivocado      | Windhawk `notifications-placement`, `monitor = 0`       | ✅ disponible                 |
-| Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                        | ✅ disponible                 |
+| Problema                             | Solución                                                   | Estado                      |
+| ------------------------------------ | ---------------------------------------------------------- | --------------------------- |
+| Perfil Hands-Free agarra el audio    | Destildar "Manos libres Telephony"                         | ✅ aplicado, en observación |
+| Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)           | 🔄 reintento en curso       |
+| Dispositivo de audio incorrecto      | Sin automatización por ahora; el toggle HFP ataca la causa | ⏸ pendiente                 |
+| Toasts en el monitor equivocado      | Windhawk `notifications-placement`, `monitor = 0`          | ✅ disponible               |
+| Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                           | ✅ disponible               |
 
 ## Otras cosas vistas en el log (no relacionadas, pero para no perderlas)
 
