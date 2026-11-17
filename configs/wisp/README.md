@@ -45,6 +45,15 @@ Comandos útiles del launcher: `bt` (dispositivos Bluetooth pareados), `wifi off
 
 Wisp se registra solo con la clave `HKCU\...\Run` llamada `Wisp`. Eso ya lo captura `configs/startup`, así que no hace falta duplicarlo a mano.
 
+## Gotchas (cosas que no existen o funcionan distinto)
+
+| Situación | Solución |
+| --------- | -------- |
+| **No hay botón de Windows/Start en el dock** (solo la lupa) | Es por diseño: las secciones son `launcher`, `apps`, `tray`, `status`, `sound`, `battery`, `wifi`, `bluetooth`, `clock`, y `launcher` es el botón de búsqueda. Para el menú Win+X usá `Win+R` → `devmgmt.msc`, o clic derecho en el chevron `⌄` del dock → **Show the taskbar**. |
+| Querés una herramienta de Windows fija en el dock | Creá un acceso directo al `.msc` en `%APPDATA%\Microsoft\Windows\Start Menu\Programs`; Wisp lo indexa desde `shell:AppsFolder` y se puede pinear (clic derecho → Run as administrator). |
+| `Win+X` no aparece | Lo dibuja Explorer anclado a la taskbar, que Wisp oculta. Preferí `Win+R`. |
+| `Alt+Space` no abre Wisp | Choca con PowerToys Run (mismo shortcut por defecto). Cambiá uno de los dos. |
+
 ## Advertencias
 
 - Si Wisp se cierra o crashea, la taskbar de Windows vuelve (con todo el tray). Es la red de seguridad.
