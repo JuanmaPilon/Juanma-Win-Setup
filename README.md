@@ -76,7 +76,7 @@ The list format is `PackageId | DisplayNamePattern (optional) | ExtraSilentArgs 
 
 The implementation is modular by design. Each script has a focused responsibility so the setup can grow without becoming brittle.
 
-AI agents contributing to this repo should follow [.github/copilot-instructions.md](.github/copilot-instructions.md).
+AI agents contributing to this repo must follow [AGENTS.md](AGENTS.md) — it is the single source of truth for conventions, the repo map, validation commands and the traps we already hit. `.github/copilot-instructions.md` just points there.
 
 Decision notes and things already tried live in [docs/](docs/README.md) — for example [audio and Bluetooth](docs/audio-bluetooth.md).
 

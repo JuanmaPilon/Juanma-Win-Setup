@@ -20,7 +20,7 @@ Los auriculares Bluetooth registran **dos** endpoints de audio:
 | `Hands-Free` (manos libres) | Micrófono / llamadas | Baja, mono |
 | A2DP (estéreo) | Reproducción de música | Alta |
 
-Ejemplo real en esta PC: `Headset (REDMI Buds 8 Active Hands-Free)`.
+Ejemplo real en esta PC: `Headset (<modelo> Hands-Free)` junto a su par `Headphones (<modelo> Stereo)`.
 
 Windows puede conectar el perfil Hands-Free y dejar el estéreo de lado, o cambiar el dispositivo
 por defecto a mitad de sesión.
