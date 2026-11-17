@@ -42,18 +42,18 @@ Flujo esperado en una máquina nueva:
 
 ## Mapa del repo
 
-| Ruta | Qué hay |
-| ---- | ------- |
-| `Menu.cmd` | Launcher recomendado → `scripts/Menu.ps1` |
-| `Setup.ps1` | Pipeline completo: Apps → Cleanup → Import-Configs → Finalize |
-| `apps/winget-apps.txt` | IDs de Winget a instalar, uno por línea, `#` para comentarios |
-| `apps/winget-remove.txt` | Denylist de paquetes deprecados: `PackageId \| DisplayNamePattern \| ExtraSilentArgs` |
-| `configs/<mod>/` | `import.ps1` + `README.md` de cada módulo (público: sólo esos dos archivos) |
-| `scripts/` | `Export-*.ps1`, `Install-*.ps1`, `Import-*.ps1`, `Remove-*.ps1`, `Update-*.ps1`, `Menu.ps1` |
-| `modules/SetupHelpers.psm1` | Helpers compartidos de consola y Winget |
-| `registry/` | `.reg` agrupados para cambios excepcionales (vacío por ahora) |
-| `docs/` | Notas de decisiones y cosas ya probadas |
-| `private-configs/` | Backups reales. **GIT-IGNORED** |
+| Ruta                        | Qué hay                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------- |
+| `Menu.cmd`                  | Launcher recomendado → `scripts/Menu.ps1`                                                   |
+| `Setup.ps1`                 | Pipeline completo: Apps → Cleanup → Import-Configs → Finalize                               |
+| `apps/winget-apps.txt`      | IDs de Winget a instalar, uno por línea, `#` para comentarios                               |
+| `apps/winget-remove.txt`    | Denylist de paquetes deprecados: `PackageId \| DisplayNamePattern \| ExtraSilentArgs`       |
+| `configs/<mod>/`            | `import.ps1` + `README.md` de cada módulo (público: sólo esos dos archivos)                 |
+| `scripts/`                  | `Export-*.ps1`, `Install-*.ps1`, `Import-*.ps1`, `Remove-*.ps1`, `Update-*.ps1`, `Menu.ps1` |
+| `modules/SetupHelpers.psm1` | Helpers compartidos de consola y Winget                                                     |
+| `registry/`                 | `.reg` agrupados para cambios excepcionales (vacío por ahora)                               |
+| `docs/`                     | Notas de decisiones y cosas ya probadas                                                     |
+| `private-configs/`          | Backups reales. **GIT-IGNORED**                                                             |
 
 Módulos de configuración: `powertoys`, `windows-ui`, `startup`, `terminal`, `wisp`, `windhawk` (pausado),
 `git`, `manual-installs` (sólo docs).
@@ -77,15 +77,15 @@ Firefox `helper.exe -ms`). `-AllowInteractiveFallback` es el último recurso, op
 
 Etapas sueltas:
 
-| Etapa | Script | `-DryRun` |
-| ----- | ------ | --------- |
-| Instalar Winget | `scripts/Install-Winget.ps1` | — |
-| Instalar apps | `scripts/Install-Apps.ps1 -RepositoryRoot .` | sí |
-| Desinstalar deprecados | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .` | sí |
-| Importar configs | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí |
-| Actualizar todo | `scripts/Update-Apps.ps1 -RepositoryRoot .` | sí (sólo lista) |
-| Exportar todo | opción 5 del menú, o `scripts/Export-<Modulo>.ps1` | — |
-| Finalize | `scripts/Finalize.ps1 -RepositoryRoot .` | — |
+| Etapa                  | Script                                                                                   | `-DryRun`       |
+| ---------------------- | ---------------------------------------------------------------------------------------- | --------------- |
+| Instalar Winget        | `scripts/Install-Winget.ps1`                                                             | —               |
+| Instalar apps          | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                             | sí              |
+| Desinstalar deprecados | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                    | sí              |
+| Importar configs       | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí              |
+| Actualizar todo        | `scripts/Update-Apps.ps1 -RepositoryRoot .`                                              | sí (sólo lista) |
+| Exportar todo          | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                       | —               |
+| Finalize               | `scripts/Finalize.ps1 -RepositoryRoot .`                                                 | —               |
 
 ## Cómo validar un cambio (obligatorio antes de dar por terminado)
 
@@ -131,7 +131,7 @@ que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar 
   basados en Squirrel/Electron. Denylist obligatoria (`TEMP`, `TMP`, `USERPROFILE`, `APPDATA`, `LOCALAPPDATA`, …)
   y normalización de rutas del perfil a tokens portables.
 - **Parser de startup**: cortar el comando en el primer espacio rompe rutas sin comillas con espacios.
-  Usar regex sobre la ruta con extensión (`.exe|.bat|.cmd|.lnk|.msc|.com`). Además, filtrar entradas *stale*
+  Usar regex sobre la ruta con extensión (`.exe|.bat|.cmd|.lnk|.msc|.com`). Además, filtrar entradas _stale_
   (ejecutable inexistente) al exportar: si en el backup ves una entrada muerta, volvé a correr el export.
 - **Windhawk (modo registro)**: un mod "existe" sólo si están las tres cosas → clave
   `HKLM\SOFTWARE\Windhawk\Engine\Mods\<id>` con `LibraryFileName`, el DLL en
@@ -163,8 +163,11 @@ que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar 
   `windows-11-start-menu-styler`, `windows-11-notification-center-styler` y `notifications-placement`.
 - **FancyZones** cubre "abrir ventanas nuevas en el monitor activo" (`openWindowOnActiveMonitor = true`).
   No hace falta un mod para eso, y tener los dos compitiendo rompe el resultado.
-- **SoundSwitch descartado**: provocaba parpadeo de pantalla y trabas al cambiar de dispositivo de audio,
-  sobre todo en juego. Detalle en `docs/audio-bluetooth.md`.
+- **SoundSwitch en reevaluación (2026-11).** El primer intento se descartó porque al cambiar de dispositivo,
+  sobre todo en juego, la PC parpadeaba y quedaba trabada. El registro de eventos no muestra ni un `TDR`
+  (4101) ni reinicios de `Audiosrv`, así que la causa es el **banner overlay**, no el audio. Se está
+  reintentando con notificaciones en `Sound only` y sin triggers. Protocolo y criterio de corte en
+  `docs/audio-bluetooth.md`. Si vuelve a fallar, `FortyOneLtd.AudioSwitcher` es el plan B.
 - **Audio Bluetooth**: los auriculares exponen `Hands-Free` (mono, calidad de llamada) y A2DP (estéreo).
   La solución de raíz es destildar "Manos libres Telephony" en las propiedades del dispositivo.
 

@@ -32,12 +32,12 @@ No necesita admin.
 
 ## Ajustes que importan en este setup
 
-| Ajuste | Valor | Por qué |
-| ------ | ----- | ------- |
-| `dock_screen` | `"pointer"` | El dock aparece en el monitor que tocás con el mouse (y el launcher abre ahí). |
-| `hide_taskbar` | `true` | Es lo que reemplaza a los mods de taskbar. |
-| `hotkey` | `"Alt+Space"` | **Conflicto**: es el shortcut por defecto de PowerToys Run. Si activás Run, cambiá uno de los dos. |
-| `dock_status_group` | incluye `bluetooth` | Conectar/desconectar los manos libres desde el dock, sin depender del toast de Windows. |
+| Ajuste              | Valor               | Por qué                                                                                            |
+| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
+| `dock_screen`       | `"pointer"`         | El dock aparece en el monitor que tocás con el mouse (y el launcher abre ahí).                     |
+| `hide_taskbar`      | `true`              | Es lo que reemplaza a los mods de taskbar.                                                         |
+| `hotkey`            | `"Alt+Space"`       | **Conflicto**: es el shortcut por defecto de PowerToys Run. Si activás Run, cambiá uno de los dos. |
+| `dock_status_group` | incluye `bluetooth` | Conectar/desconectar los manos libres desde el dock, sin depender del toast de Windows.            |
 
 Comandos útiles del launcher: `bt` (dispositivos Bluetooth pareados), `wifi off`, `vol 40`, `night light`, `dark mode`, `now` (estado + audio).
 
@@ -47,12 +47,12 @@ Wisp se registra solo con la clave `HKCU\...\Run` llamada `Wisp`. Eso ya lo capt
 
 ## Gotchas (cosas que no existen o funcionan distinto)
 
-| Situación | Solución |
-| --------- | -------- |
+| Situación                                                   | Solución                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **No hay botón de Windows/Start en el dock** (solo la lupa) | Es por diseño: las secciones son `launcher`, `apps`, `tray`, `status`, `sound`, `battery`, `wifi`, `bluetooth`, `clock`, y `launcher` es el botón de búsqueda. Para el menú Win+X usá `Win+R` → `devmgmt.msc`, o clic derecho en el chevron `⌄` del dock → **Show the taskbar**. |
-| Querés una herramienta de Windows fija en el dock | Creá un acceso directo al `.msc` en `%APPDATA%\Microsoft\Windows\Start Menu\Programs`; Wisp lo indexa desde `shell:AppsFolder` y se puede pinear (clic derecho → Run as administrator). |
-| `Win+X` no aparece | Lo dibuja Explorer anclado a la taskbar, que Wisp oculta. Preferí `Win+R`. |
-| `Alt+Space` no abre Wisp | Choca con PowerToys Run (mismo shortcut por defecto). Cambiá uno de los dos. |
+| Querés una herramienta de Windows fija en el dock           | Creá un acceso directo al `.msc` en `%APPDATA%\Microsoft\Windows\Start Menu\Programs`; Wisp lo indexa desde `shell:AppsFolder` y se puede pinear (clic derecho → Run as administrator).                                                                                          |
+| `Win+X` no aparece                                          | Lo dibuja Explorer anclado a la taskbar, que Wisp oculta. Preferí `Win+R`.                                                                                                                                                                                                       |
+| `Alt+Space` no abre Wisp                                    | Choca con PowerToys Run (mismo shortcut por defecto). Cambiá uno de los dos.                                                                                                                                                                                                     |
 
 ## Advertencias
 

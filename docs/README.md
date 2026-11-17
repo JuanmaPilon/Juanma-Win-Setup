@@ -11,7 +11,7 @@ This directory will hold the decision records and maintenance notes for this rep
 
 ## Existing notes
 
-- [audio-bluetooth.md](audio-bluetooth.md) — perfil Hands-Free de auriculares Bluetooth, toasts en el monitor equivocado, y por qué SoundSwitch se descartó.
+- [audio-bluetooth.md](audio-bluetooth.md) — perfil Hands-Free de auriculares Bluetooth, toasts en el monitor equivocado, el protocolo de reintento de SoundSwitch y las herramientas evaluadas.
 
 ## Notes on Winget bootstrap
 

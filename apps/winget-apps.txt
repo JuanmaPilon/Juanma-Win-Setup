@@ -33,6 +33,9 @@ Fastfetch-cli.Fastfetch
 svenstaro.genact
 cowboy8625.rusty-rain
 
+# Audio: switching output/input devices (portable; same binary as the one used by hand before)
+FortyOneLtd.AudioSwitcher
+
 # Windows customization
 # Windhawk was replaced by Wisp (dock + launcher, manual install: see configs/manual-installs/README.md).
 # Windhawk is still in apps/winget-remove.txt so the cleanup stage takes it out of old machines.
