@@ -78,6 +78,8 @@ The implementation is modular by design. Each script has a focused responsibilit
 
 AI agents contributing to this repo should follow [.github/copilot-instructions.md](.github/copilot-instructions.md).
 
+Decision notes and things already tried live in [docs/](docs/README.md) — for example [audio and Bluetooth](docs/audio-bluetooth.md).
+
 ## Backup policy 🔒
 
 Sensitive or machine-specific data should not be committed by default.

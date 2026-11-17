@@ -30,6 +30,7 @@ scripts/         Export-*.ps1, Install-*.ps1, Import-*.ps1, Menu.ps1
 modules/         SetupHelpers.psm1 (helpers compartidos)
 registry/        .reg agrupados para cambios excepcionales
 private-configs/ backups reales (GIT-IGNORED: nunca commitear)
+docs/            notas de decisiones y cosas ya probadas (ej. audio-bluetooth.md)
 ```
 
 Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `terminal`, `wisp`, `windhawk` (pausado), `git`, `environment-variables` (script suelto).
@@ -107,9 +108,12 @@ Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `te
 - **Nunca** usar un mod de Windhawk con `Include = *`: inyecta el DLL en todos los procesos (juegos con anti-cheat incluidos) y es la causa de crashes. Los mods deben apuntar a procesos del shell (`explorer.exe`, `ShellExperienceHost.exe`, `StartMenuExperienceHost.exe`).
 - Wisp (desde 2026-11) reemplaza la taskbar: mantiene su config en `%APPDATA%\wisp\config.toml` (un solo archivo), no necesita admin y se autoregistra en `HKCU\...\Run` como `Wisp`. No tiene paquete en Winget: instalación manual en `%LOCALAPPDATA%\Programs\Wisp`.
 - Con `hide_taskbar = true`, los mods de taskbar/tray de Windhawk pierden sentido. Los que siguen aplicando son `windows-11-start-menu-styler`, `windows-11-notification-center-styler` y `notifications-placement` (`monitor = 0` mueve los toasts al monitor del cursor).
+- **SoundSwitch descartado (2026-11).** Al cambiar de dispositivo de audio, sobre todo en medio de un juego, provocaba que la PC parpadeara y quedara trabada un momento, como si se reiniciaran todos los dispositivos. No reintroducirlo sin aislar la causa (probable re-enumeración de endpoints). Detalle y alternativas en `docs/audio-bluetooth.md`.
+- Audio Bluetooth: los auriculares exponen endpoint `Hands-Free` (manos libres, mono) y A2DP (estéreo). Si Windows agarra el de manos libres, la solución de raíz es destildar "Manos libres Telephony" en Propiedades del dispositivo → pestaña Servicios. No hay herramienta que lo arregle mejor.
 
 ## Pendientes conocidos
 
 - Export/import de perfil de Firefox (`Export-Firefox.ps1` + `configs/firefox/import.ps1`).
 - Startup a nivel máquina (HKLM Run + carpeta Startup común, requiere admin).
+- Audio Bluetooth: confirmar que desactivar "Manos libres Telephony" alcanza (ver `docs/audio-bluetooth.md`) y decidir si hace falta otra herramienta para el dispositivo por defecto, ya que SoundSwitch se descartó.
 - Validación end-to-end en la laptop tras cada cambio grande.
