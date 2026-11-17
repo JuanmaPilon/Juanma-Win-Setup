@@ -115,9 +115,10 @@ while ($true) {
             & (Join-Path $repoRoot 'scripts/Export-WindowsUI.ps1') -IncludeExplorerAdvanced -IncludeQuickAccessPins
             & (Join-Path $repoRoot 'scripts/Export-StartupApps.ps1')
             & (Join-Path $repoRoot 'scripts/Export-TerminalConfig.ps1')
+            & (Join-Path $repoRoot 'scripts/Export-Wisp.ps1')
             & (Join-Path $repoRoot 'scripts/Export-Windhawk.ps1')
             Write-SetupRule
-            Write-SetupSuccess 'Export completed: environment variables, PowerToys, Windows UI, startup apps, terminal and Windhawk.'
+            Write-SetupSuccess 'Export completed: environment variables, PowerToys, Windows UI, startup apps, terminal, Wisp and Windhawk.'
         }
         '6' {
             Write-Host ''

@@ -1,5 +1,11 @@
 # Windhawk configuration
 
+> **Módulo pausado.** Desde 2026-11 la PC principal usa [Wisp](../wisp/README.md) (dock + launcher que reemplaza la taskbar).
+> Windhawk salió de `apps/winget-apps.txt` y está en `apps/winget-remove.txt`. El backup y este módulo se mantienen
+> para poder volver atrás; si Windhawk no está instalado, el import lo informa y sigue.
+>
+> Si volvés: **nunca** uses un mod con `Include = *` (inyecta DLL en todos los procesos, juegos incluidos).
+
 Restaura la configuración de Windhawk. Soporta los **dos modos** de instalación:
 
 | Modo                                | Almacenamiento                                      | Requiere admin                 |
@@ -46,7 +52,7 @@ No hace falta reinstalar los mods desde el catálogo: los binarios compilados vi
 
 ### Por qué antes no aparecían los mods
 
-El import abortaba en una comprobación de instalación *portable* antes de llegar a la rama de registro, y además solo copiaba `userprofile.json` sin los DLLs referenciados por `HKLM\...\Mods\<id>\LibraryFileName`. Ahora el modo se detecta primero y los binarios se restauran antes de arrancar el servicio.
+El import abortaba en una comprobación de instalación _portable_ antes de llegar a la rama de registro, y además solo copiaba `userprofile.json` sin los DLLs referenciados por `HKLM\...\Mods\<id>\LibraryFileName`. Ahora el modo se detecta primero y los binarios se restauran antes de arrancar el servicio.
 
 ## Migración portable → normal (completada)
 

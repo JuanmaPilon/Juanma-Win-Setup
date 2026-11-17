@@ -19,7 +19,8 @@ It is designed to restore a machine to your preferred state quickly: install app
 - Environment variables.
 - Startup apps (Run entries and Startup folder).
 - Terminal setup (Windows Terminal, PowerShell profiles, Oh My Posh, fastfetch).
-- Windhawk mods and settings (normal install with service, or portable install). Mods travel compiled, so nothing needs to be reinstalled from the catalog.
+- Wisp (launcher + dock that replaces the taskbar) configuration. Manual install, `config.toml` is versioned privately.
+- Windhawk mods and settings (normal install with service, or portable install). Mods travel compiled, so nothing needs to be reinstalled from the catalog. **Paused**: replaced by Wisp; kept for going back.
 
 ## Repository layout
 
@@ -87,7 +88,7 @@ Sensitive or machine-specific data should not be committed by default.
 
 ## Config coverage ✅
 
-The current setup flow focuses on environment variables, PowerToys, Windows UI preferences (mouse/theme), startup apps, terminal configuration and Windhawk. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
+The current setup flow focuses on environment variables, PowerToys, Windows UI preferences (mouse/theme), startup apps, terminal configuration, Wisp and Windhawk. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
 
 Apps without a Winget package are tracked in [configs/manual-installs/README.md](configs/manual-installs/README.md), with vendor links and instructions to keep installers under `private-configs/manual-installs/`.
 
@@ -126,4 +127,4 @@ To rebuild the main PC from zero:
 5. Run `Menu.cmd`: install Winget, run full setup, import environment variables (DryRun first), then import config backups.
 6. Sign out/in and open a new terminal to apply shell and UI settings.
 
-What is NOT covered by that folder (handle manually): apps listed in [configs/manual-installs/README.md](configs/manual-installs/README.md) (ALSEYE BEM, Archon, NVIDIA driver, Canon, Windhawk portable), game installs managed by launchers, and the pending Firefox profile module.
+What is NOT covered by that folder (handle manually): apps listed in [configs/manual-installs/README.md](configs/manual-installs/README.md) (ALSEYE BEM, Archon, NVIDIA driver, Canon, Wisp), game installs managed by launchers, and the pending Firefox profile module.

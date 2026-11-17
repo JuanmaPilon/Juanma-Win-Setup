@@ -20,6 +20,9 @@ StartIsBack.StartAllBack
 # Replaced by SimpleStickyNotes
 63BeetleSmurf.PinnyNotes
 
+# Replaced by Wisp (dock + launcher). Re-add to winget-apps.txt if Wisp does not stick.
+RamenSoftware.Windhawk
+
 # No longer used
 ZhornSoftware.Stickies
 

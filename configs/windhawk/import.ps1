@@ -42,8 +42,8 @@ if ($mode -eq 'registry') {
     Write-SetupInfo 'Windhawk backup mode: registry (normal install)'
 
     if (-not (Test-Path (Join-Path $env:ProgramFiles 'Windhawk\windhawk.ini'))) {
-        Write-SetupError 'Windhawk is not installed in Program Files, but the backup is registry-mode.'
-        Write-SetupWarning 'Install Windhawk first (winget install RamenSoftware.Windhawk), open it once, then re-run this import.'
+        Write-SetupInfo 'Windhawk is not installed on this machine; skipping the Windhawk module (paused, replaced by Wisp).'
+        Write-SetupWarning 'Reinstall it with "winget install RamenSoftware.Windhawk" if you want to go back to the mod-based setup.'
         return
     }
 
@@ -79,7 +79,7 @@ if ($mode -eq 'registry') {
     }
 
     if (-not (Get-Service -Name 'Windhawk' -ErrorAction SilentlyContinue)) {
-        Write-SetupError 'The Windhawk service is not installed. Install Windhawk first and run its UI once, then re-run this import.'
+        Write-SetupWarning 'The Windhawk service is not installed. Install Windhawk, open its UI once, then re-run this import.'
         return
     }
 

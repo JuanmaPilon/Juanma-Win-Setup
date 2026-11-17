@@ -34,4 +34,5 @@ svenstaro.genact
 cowboy8625.rusty-rain
 
 # Windows customization
-RamenSoftware.Windhawk
+# Windhawk was replaced by Wisp (dock + launcher, manual install: see configs/manual-installs/README.md).
+# Windhawk is still in apps/winget-remove.txt so the cleanup stage takes it out of old machines.

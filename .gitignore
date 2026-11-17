@@ -48,3 +48,6 @@ configs/terminal/**
 configs/windhawk/**
 !configs/windhawk/import.ps1
 !configs/windhawk/README.md
+configs/wisp/**
+!configs/wisp/import.ps1
+!configs/wisp/README.md

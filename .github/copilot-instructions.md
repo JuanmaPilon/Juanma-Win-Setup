@@ -32,7 +32,7 @@ registry/        .reg agrupados para cambios excepcionales
 private-configs/ backups reales (GIT-IGNORED: nunca commitear)
 ```
 
-Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `terminal`, `windhawk`, `git`, `environment-variables` (script suelto).
+Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `terminal`, `wisp`, `windhawk` (pausado), `git`, `environment-variables` (script suelto).
 
 ## Punto de entrada
 
@@ -104,6 +104,9 @@ Módulos de configuración existentes: `powertoys`, `windows-ui`, `startup`, `te
 - Visibilidad de íconos de bandeja depende de Windows (`HKCU\Control Panel\NotifyIconSettings`), no de PowerToys.
 - Windhawk (modo registro): un mod "existe" solo si están las tres cosas → clave `HKLM\SOFTWARE\Windhawk\Engine\Mods\<id>` (con `LibraryFileName`), el DLL en `%ProgramData%\Windhawk\Engine\Mods\<arch>\<LibraryFileName>` y la entrada en `userprofile.json`. Si falta el DLL, la UI muestra cero mods. El export debe incluir `data/Engine/Mods/32|64/*.dll` (nunca `ModsWritable\mod-status`, es caché) y el import debe **parar la UI** (`Windhawk.exe`) antes de escribir, porque el proceso reescribe `userprofile.json` al cerrarse.
 - El import de Windhawk detecta el modo ANTES de cualquier chequeo de ruta portable; antes abortaba con "portable install not found" y nunca tocaba la instalación normal.
+- **Nunca** usar un mod de Windhawk con `Include = *`: inyecta el DLL en todos los procesos (juegos con anti-cheat incluidos) y es la causa de crashes. Los mods deben apuntar a procesos del shell (`explorer.exe`, `ShellExperienceHost.exe`, `StartMenuExperienceHost.exe`).
+- Wisp (desde 2026-11) reemplaza la taskbar: mantiene su config en `%APPDATA%\wisp\config.toml` (un solo archivo), no necesita admin y se autoregistra en `HKCU\...\Run` como `Wisp`. No tiene paquete en Winget: instalación manual en `%LOCALAPPDATA%\Programs\Wisp`.
+- Con `hide_taskbar = true`, los mods de taskbar/tray de Windhawk pierden sentido. Los que siguen aplicando son `windows-11-start-menu-styler`, `windows-11-notification-center-styler` y `notifications-placement` (`monitor = 0` mueve los toasts al monitor del cursor).
 
 ## Pendientes conocidos
 
