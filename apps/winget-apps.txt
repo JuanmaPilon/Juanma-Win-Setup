@@ -36,6 +36,10 @@ cowboy8625.rusty-rain
 # Audio: switching output/input devices (portable; same binary as the one used by hand before)
 FortyOneLtd.AudioSwitcher
 
+# File search index: Wisp uses it for `?query` when it is running (fallback: Windows Search index).
+# It registers its own HKLM Run entry, so no startup entry needs to be exported.
+voidtools.Everything
+
 # Windows customization
 # Windhawk was replaced by Wisp (dock + launcher, manual install: see configs/manual-installs/README.md).
 # Windhawk is still in apps/winget-remove.txt so the cleanup stage takes it out of old machines.
