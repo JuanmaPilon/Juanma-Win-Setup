@@ -194,6 +194,11 @@ que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar 
 - Validar si el toggle de "Manos libres Telephony" alcanza como solución completa de audio.
 - `configs/git/README.md` falta (existe el `import.ps1`).
 - Validación end-to-end en una segunda máquina después de cada cambio grande.
+- **Bootstrap de repos propios (idea, a definir).** El setup debería clonar 2 repos personales en una carpeta
+  de trabajo para tenerlos listos desde el primer arranque. Falta definir: cuáles repos, en qué ruta destino,
+  y cómo resolver credenciales (los repos privados necesitan auth; no guardar tokens en el repo). Requisitos
+  ya claros: idempotente (`git clone` si no existe, `git pull` si existe), tolerante a fallos de red, y
+  `-DryRun` soportado. Nunca hardcodear la ruta del usuario.
 
 ## Dónde está el detalle
 

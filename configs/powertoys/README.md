@@ -21,11 +21,11 @@ To improve fidelity for Command Palette and launcher/plugin behavior, the export
 
 Estos ajustes viven en `FancyZones/settings.json` y viajan con el backup:
 
-| Ajuste                               | Valor en la PC principal | Qué hace                                                                 |
-| ------------------------------------ | ------------------------ | ------------------------------------------------------------------------ |
-| `fancyzones_monitorRotation`         | `true`                   | `Alt+X` + `←/→`: rota ventanas abiertas entre monitores, con preview     |
-| `fancyzones_monitorRotation_hotkey`  | `Alt` + `X`              | El shortcut de lo anterior                                               |
-| `fancyzones_openWindowOnActiveMonitor` | `true`                 | Las ventanas nuevas se abren en el monitor activo                        |
-| `fancyzones_moveWindowAcrossMonitors`  | `false`                | Si se activa, `Win+←/→` puede cruzar de monitor al recorrer las zonas    |
+| Ajuste                                 | Valor en la PC principal | Qué hace                                                              |
+| -------------------------------------- | ------------------------ | --------------------------------------------------------------------- |
+| `fancyzones_monitorRotation`           | `true`                   | `Alt+X` + `←/→`: rota ventanas abiertas entre monitores, con preview  |
+| `fancyzones_monitorRotation_hotkey`    | `Alt` + `X`              | El shortcut de lo anterior                                            |
+| `fancyzones_openWindowOnActiveMonitor` | `true`                   | Las ventanas nuevas se abren en el monitor activo                     |
+| `fancyzones_moveWindowAcrossMonitors`  | `false`                  | Si se activa, `Win+←/→` puede cruzar de monitor al recorrer las zonas |
 
 `fancyzones_monitorRotation` es la forma más rápida de mandar una ventana a la otra pantalla sin buscarla. Si en una PC nueva `Alt+X` no hace nada, verificar que ese valor haya llegado en `FancyZones/settings.json`.

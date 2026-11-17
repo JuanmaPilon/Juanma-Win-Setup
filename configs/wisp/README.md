@@ -32,13 +32,13 @@ No necesita admin.
 
 ## Ajustes que importan en este setup
 
-| Ajuste              | Valor               | Por qué                                                                                            |
-| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
-| `dock_screen`       | `"pointer"`         | El dock aparece en el monitor que tocás con el mouse (y el launcher abre ahí).                     |
-| `hide_taskbar`      | `true`              | Es lo que reemplaza a los mods de taskbar.                                                         |
-| `hotkey`            | `"Alt+Space"`       | **Conflicto**: es el shortcut por defecto de PowerToys Run. Si activás Run, cambiá uno de los dos. |
-| `dock_status_group` | incluye `bluetooth` | Conectar/desconectar los manos libres desde el dock, sin depender del toast de Windows.            |
-| `file_search_everything` | `true` | **Necesita Everything instalado y corriendo** (`voidtools.Everything`, ya en `apps/winget-apps.txt`). Sin él, Wisp cae al índice de Windows: más lento y sin cubrir todos los discos. Costo real medido: ~12 MB de RAM. |
+| Ajuste                   | Valor               | Por qué                                                                                                                                                                                                                 |
+| ------------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dock_screen`            | `"pointer"`         | El dock aparece en el monitor que tocás con el mouse (y el launcher abre ahí).                                                                                                                                          |
+| `hide_taskbar`           | `true`              | Es lo que reemplaza a los mods de taskbar.                                                                                                                                                                              |
+| `hotkey`                 | `"Alt+Space"`       | **Conflicto**: es el shortcut por defecto de PowerToys Run. Si activás Run, cambiá uno de los dos.                                                                                                                      |
+| `dock_status_group`      | incluye `bluetooth` | Conectar/desconectar los manos libres desde el dock, sin depender del toast de Windows.                                                                                                                                 |
+| `file_search_everything` | `true`              | **Necesita Everything instalado y corriendo** (`voidtools.Everything`, ya en `apps/winget-apps.txt`). Sin él, Wisp cae al índice de Windows: más lento y sin cubrir todos los discos. Costo real medido: ~12 MB de RAM. |
 
 Comandos útiles del launcher: `bt` (dispositivos Bluetooth pareados), `wifi off`, `vol 40`, `night light`, `dark mode`, `now` (estado + audio).
 
