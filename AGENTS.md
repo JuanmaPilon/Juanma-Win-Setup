@@ -103,6 +103,32 @@ Etapas sueltas:
 | Exportar todo          | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                       | —               |
 | Finalize               | `scripts/Finalize.ps1 -RepositoryRoot .`                                                 | —               |
 
+### Cambiar el monitor principal (modo trabajo / juego)
+
+`Toggle-Display.cmd` → `scripts/Toggle-PrimaryDisplay.ps1`. Pone el monitor que **no** es principal en
+`(0,0)` con `ChangeDisplaySettingsEx` + `CDS_SET_PRIMARY`, que es la única forma de cambiarlo por código
+(no hay API pública). Sirve para tener el Start, los toasts y los flyouts en el monitor que estás mirando
+sin dejar de usar el otro para juegos.
+
+- `-DryRun` muestra el layout y qué haría, sin tocar nada.
+- Verifica el resultado leyendo la posición de cada monitor desde el driver y **revierte solo** si queda mal
+  o si detecta monitores superpuestos.
+- Windows **siempre** abre el Start y los toasts en el principal; no hay setting que lo cambie. Esto es lo
+  único que lo resuelve sin pagar Start11.
+
+El atajo vive en `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Cambiar pantalla principal.lnk` porque Wisp
+sólo puede pinear apps de `shell:AppsFolder`. Ese `.lnk` tiene la ruta absoluta del repo, así que en otra
+máquina hay que recrearlo:
+
+```powershell
+$ws = New-Object -ComObject WScript.Shell
+$sc = $ws.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Cambiar pantalla principal.lnk")
+$sc.TargetPath = (Join-Path (Get-Location) 'Toggle-Display.cmd')
+$sc.WorkingDirectory = (Get-Location).Path
+$sc.WindowStyle = 7
+$sc.Save()
+```
+
 ## Cómo validar un cambio (obligatorio antes de dar por terminado)
 
 ```powershell
