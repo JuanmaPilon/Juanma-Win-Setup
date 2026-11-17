@@ -123,18 +123,21 @@ y no hay setting que lo cambie.
 `/SetNextPrimary` es la forma más corta de un toggle (rota el primario al siguiente monitor), útil si
 `/SetMonitors` resulta frágil en alguna configuración.
 
-El atajo vive en `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Cambiar pantalla principal.lnk` porque Wisp
+El atajo se llama **`Change`** y vive en `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Change.lnk` porque Wisp
 sólo puede pinear apps de `shell:AppsFolder`. Ese `.lnk` tiene la ruta absoluta del repo, así que en otra
 máquina hay que recrearlo:
 
 ```powershell
 $ws = New-Object -ComObject WScript.Shell
-$sc = $ws.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Cambiar pantalla principal.lnk")
+$sc = $ws.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Change.lnk")
 $sc.TargetPath = (Join-Path (Get-Location) 'Toggle-Display.cmd')
 $sc.WorkingDirectory = (Get-Location).Path
+$sc.IconLocation = "$env:SystemRoot\System32\DisplaySwitch.exe"
 $sc.WindowStyle = 7
 $sc.Save()
 ```
+
+En el launcher de Wisp aparece buscando `change` (o `cha`), y se puede pinear al dock.
 
 ## Cómo validar un cambio (obligatorio antes de dar por terminado)
 
