@@ -105,16 +105,23 @@ Etapas sueltas:
 
 ### Cambiar el monitor principal (modo trabajo / juego)
 
-`Toggle-Display.cmd` → `scripts/Toggle-PrimaryDisplay.ps1`. Pone el monitor que **no** es principal en
-`(0,0)` con `ChangeDisplaySettingsEx` + `CDS_SET_PRIMARY`, que es la única forma de cambiarlo por código
-(no hay API pública). Sirve para tener el Start, los toasts y los flyouts en el monitor que estás mirando
-sin dejar de usar el otro para juegos.
+`Toggle-Display.cmd` → `scripts/Toggle-PrimaryDisplay.ps1`, que usa **MultiMonitorTool** (NirSoft, portable,
+en `%LOCALAPPDATA%\Programs\MultiMonitorTool`). Sirve para tener el Start, los toasts y los flyouts en el
+monitor que estás mirando sin dejar de usar el otro para juegos: Windows **siempre** los abre en el primario
+y no hay setting que lo cambie.
 
-- `-DryRun` muestra el layout y qué haría, sin tocar nada.
-- Verifica el resultado leyendo la posición de cada monitor desde el driver y **revierte solo** si queda mal
-  o si detecta monitores superpuestos.
-- Windows **siempre** abre el Start y los toasts en el principal; no hay setting que lo cambie. Esto es lo
-  único que lo resuelve sin pagar Start11.
+- `-DryRun` imprime el comando `/SetMonitors` que aplicaría, sin tocar nada.
+- Verifica el resultado leyendo la posición de cada monitor **desde el driver** y avisa si quedaron superpuestos.
+- **Por qué no se hace con la API de Windows:** `ChangeDisplaySettingsEx` + `CDS_SET_PRIMARY` reposiciona el
+  monitor pero nunca le cede la primacía, y el lote con `CDS_NORESET` (la única vía documentada) devuelve
+  `DISP_CHANGE_BADFLAGS` (-4) en Windows 11. La herramienta usa `SetDisplayConfig`, que es la API moderna.
+- **Bug conocido de Windows 11 24H2:** el propio readme de MultiMonitorTool avisa que *"every action you try
+  fails completely"*. Síntoma: `/SetPrimary`, `/SetNextPrimary` y `/SetMonitors` devuelven `0` sin cambiar nada.
+  Se destraba cambiando algo en Configuración → Pantalla, o desenchufando y reenchufando un monitor, y
+  volviendo a intentar.
+
+`/SetNextPrimary` es la forma más corta de un toggle (rota el primario al siguiente monitor), útil si
+`/SetMonitors` resulta frágil en alguna configuración.
 
 El atajo vive en `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Cambiar pantalla principal.lnk` porque Wisp
 sólo puede pinear apps de `shell:AppsFolder`. Ese `.lnk` tiene la ruta absoluta del repo, así que en otra
