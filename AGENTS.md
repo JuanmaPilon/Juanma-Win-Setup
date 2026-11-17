@@ -46,8 +46,8 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
 
 - **Commitear y pushear directo a `main`.** No crear ramas de feature, no abrir PRs, no hacer forks.
   Las "buenas prácticas" de PR + review no aplican acá; no las propongas.
-- Los avisos del remoto al pushear (`Bypassed rule violations for refs/heads/main`: *Commits must have
-  verified signatures*, *Changes must be made through a pull request*, *Cannot change this locked branch*)
+- Los avisos del remoto al pushear (`Bypassed rule violations for refs/heads/main`: _Commits must have
+  verified signatures_, _Changes must be made through a pull request_, _Cannot change this locked branch_)
   son **esperados**: hay branch protection configurada en GitHub y el push pasa por ser el dueño.
   No hay nada que arreglar — **no** cambies la configuración del repo ni abras un PR para "cumplir".
 - Mensajes de commit en imperativo y con scope, como los que ya usa el repo:
@@ -115,8 +115,8 @@ y no hay setting que lo cambie.
 - **Por qué no se hace con la API de Windows:** `ChangeDisplaySettingsEx` + `CDS_SET_PRIMARY` reposiciona el
   monitor pero nunca le cede la primacía, y el lote con `CDS_NORESET` (la única vía documentada) devuelve
   `DISP_CHANGE_BADFLAGS` (-4) en Windows 11. La herramienta usa `SetDisplayConfig`, que es la API moderna.
-- **Bug conocido de Windows 11 24H2:** el propio readme de MultiMonitorTool avisa que *"every action you try
-  fails completely"*. Síntoma: `/SetPrimary`, `/SetNextPrimary` y `/SetMonitors` devuelven `0` sin cambiar nada.
+- **Bug conocido de Windows 11 24H2:** el propio readme de MultiMonitorTool avisa que _"every action you try
+  fails completely"_. Síntoma: `/SetPrimary`, `/SetNextPrimary` y `/SetMonitors` devuelven `0` sin cambiar nada.
   Se destraba cambiando algo en Configuración → Pantalla, o desenchufando y reenchufando un monitor, y
   volviendo a intentar.
 

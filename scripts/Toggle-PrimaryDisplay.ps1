@@ -155,21 +155,39 @@ foreach ($display in $before) {
 }
 
 # --- Build the new arrangement -------------------------------------------------------
-# The target goes to (0,0) as primary; the rest keep their side so the physical layout
-# (and where the mouse crosses) stays the same.
-$entries = @()
+# The target goes to (0,0) as primary and the others are laid out around it keeping the
+# physical left-to-right order. Deriving the side from the raw X sign does not work: after
+# one swap the target already sits at (0,0), so nothing is negative anymore and the next
+# toggle would move the secondary to the wrong side.
 $targetState = $before | Where-Object { $_.Device -eq $targetScreen.DeviceName } | Select-Object -First 1
 
+$ordered = @($before | Sort-Object -Property X, Y)
+$targetIndex = -1
+for ($i = 0; $i -lt $ordered.Count; $i++) {
+    if ($ordered[$i].Device -eq $targetScreen.DeviceName) { $targetIndex = $i; break }
+}
+
+$newX = @{}
+$newX[$ordered[$targetIndex].Device] = 0
+
+$cursor = 0
+for ($i = $targetIndex - 1; $i -ge 0; $i--) {
+    $cursor -= $ordered[$i].Width
+    $newX[$ordered[$i].Device] = $cursor
+}
+
+$cursor = $ordered[$targetIndex].Width
+for ($i = $targetIndex + 1; $i -lt $ordered.Count; $i++) {
+    $newX[$ordered[$i].Device] = $cursor
+    $cursor += $ordered[$i].Width
+}
+
+$entries = @()
 foreach ($display in $before) {
     $isTarget = $display.Device -eq $targetScreen.DeviceName
-    $newX = 0
-    if (-not $isTarget) {
-        $newX = if ($display.X -lt 0) { -$display.Width } else { $targetState.Width }
-    }
-
     $frequency = if ($display.Frequency -le 1) { 60 } else { $display.Frequency }
     $entries += 'Name={0} Primary={1} BitsPerPixel={2} Width={3} Height={4} DisplayFlags=0 DisplayFrequency={5} DisplayOrientation={6} PositionX={7} PositionY=0' -f `
-        $display.Device, $(if ($isTarget) { 1 } else { 0 }), $display.BitsPerPel, $display.Width, $display.Height, $frequency, $display.Orientation, $newX
+        $display.Device, $(if ($isTarget) { 1 } else { 0 }), $display.BitsPerPel, $display.Width, $display.Height, $frequency, $display.Orientation, $newX[$display.Device]
 }
 
 if ($DryRun) {
