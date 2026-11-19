@@ -188,8 +188,25 @@ al salir, misma trampa que Windhawk y Wisp):
 
 `ChangeCommunications` y `SwitchForegroundProgram` ya estaban en `false`, y no hay perfiles ni reglas por app.
 
-**Falta**: terminar el onboarding (elegir dispositivos y hotkeys) y correr la escalera de pruebas (fase A → C).
-El veredicto se escribe acá cuando esté.
+Actualización (2026-11-18):
+
+- Onboarding completado (`FirstRun = false`).
+- **AudioSwitcher desinstalado**: ya no hay dos switchers compitiendo por el dispositivo por defecto.
+- **SoundSwitch no tiene autostart configurado** (ni clave `Run` ni carpeta Startup). Para que la prueba sea
+  real hay que activar *Start automatically with Windows* en su configuración; si no, tras reiniciar no está
+  corriendo y "parece que funciona" justamente porque no está.
+- Primeras impresiones del uso diario: **sin parpadeos**. Sin banner, el overlay que se sospechaba como causa
+  ya no existe.
+
+**Falta**: correr la escalera de pruebas (fase A: 30 cambios seguidos en escritorio; fase C: una sesión de
+juego con un cambio en el medio). El veredicto se escribe acá cuando esté.
+
+### Pendiente aparte: el "permiso para conectar" de los auriculares
+
+Los auriculares piden confirmación cada vez que se conectan, y encima el endpoint A2DP aparecía como
+`CM_PROB_PHANTOM` (dispositivo "conectado" pero sin endpoint real). Hipótesis: emparejamiento a medio hacer.
+Se resuelve quitando el dispositivo y volviendo a emparejar. Falta capturar el texto exacto del diálogo para
+distinguir si es un toast (silenciable) o un consentimiento de emparejamiento (se arregla re-emparejando).
 
 ## Resumen de estado
 
