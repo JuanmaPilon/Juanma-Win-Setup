@@ -193,7 +193,7 @@ Actualización (2026-11-18):
 - Onboarding completado (`FirstRun = false`).
 - **AudioSwitcher desinstalado**: ya no hay dos switchers compitiendo por el dispositivo por defecto.
 - **SoundSwitch no tiene autostart configurado** (ni clave `Run` ni carpeta Startup). Para que la prueba sea
-  real hay que activar *Start automatically with Windows* en su configuración; si no, tras reiniciar no está
+  real hay que activar _Start automatically with Windows_ en su configuración; si no, tras reiniciar no está
   corriendo y "parece que funciona" justamente porque no está.
 - Primeras impresiones del uso diario: **sin parpadeos**. Sin banner, el overlay que se sospechaba como causa
   ya no existe.
@@ -201,12 +201,43 @@ Actualización (2026-11-18):
 **Falta**: correr la escalera de pruebas (fase A: 30 cambios seguidos en escritorio; fase C: una sesión de
 juego con un cambio en el medio). El veredicto se escribe acá cuando esté.
 
-### Pendiente aparte: el "permiso para conectar" de los auriculares
+### Los auriculares piden emparejarse cada vez (BTHUSB Event ID 16)
 
-Los auriculares piden confirmación cada vez que se conectan, y encima el endpoint A2DP aparecía como
-`CM_PROB_PHANTOM` (dispositivo "conectado" pero sin endpoint real). Hipótesis: emparejamiento a medio hacer.
-Se resuelve quitando el dispositivo y volviendo a emparejar. Falta capturar el texto exacto del diálogo para
-distinguir si es un toast (silenciable) o un consentimiento de emparejamiento (se arregla re-emparejando).
+Síntoma: al conectar aparecen tres pantallas seguidas — "Add a device · Tap to set up your <modelo>",
+"Pair device? · would like to pair to this Windows device. Do you want to allow this?" y
+"<modelo> · Connection succeeded". O sea **pide pairing, no conexión**: el dispositivo cree que no está
+vinculado.
+
+Lo que se verificó en esta PC (2026-11-19):
+
+| Chequeo | Resultado |
+| ------- | --------- |
+| Vínculo en la PC (`BTHPORT\...\Devices\<MAC>`) | **Existe** → no se borra de este lado |
+| `LastConnected` del dispositivo | 2 días antes de la última conexión real → las conexiones nuevas **no** se registran como conexión de un dispositivo emparejado |
+| Perfiles PnP (A2DP, AVRCP, HFP) | Todos `OK` cuando está conectado |
+| **Log `System`, proveedor `BTHUSB`, Event ID 16** | **"The mutual authentication between the local Bluetooth adapter and a device … failed"** (varias veces el mismo día) |
+| Adaptadores presentes | **Dos**: Realtek BT 5.0 USB (`VID_0BDA&PID_8771`, OK) e Intel Wireless BT (`CM_PROB_DISABLED`, Code 22) |
+| Dueño del vínculo | `ServicesFor00e04c239987` = serial del **Realtek** (el Intel está deshabilitado, no participa) |
+| Ahorro de energía del adaptador | **Ya desactivado** (`MSPower_DeviceEnable = False`) → no es eso |
+| **Driver del adaptador** | **Realtek 1.6.1015.3018, del 2021-03-31** ← sospechoso principal |
+
+Diagnóstico: la clave de enlace guardada **no coincide** con la del auricular, la autenticación mutua falla
+(evento 16) y el dispositivo vuelve a modo emparejamiento. Con un driver de 2021 en un dongle Realtek, la
+pérdida/corrupción de claves es un problema conocido.
+
+> **Efecto colateral importante:** cada re-emparejamiento reinstala los servicios del dispositivo, así que el
+> tilde de "Manos libres Telephony" **se vuelve a activar solo**. Eso explica por qué los perfiles Hands-Free
+> aparecían `OK` sin que se los hubiera reactivado a mano. Mientras dure el ciclo de re-emparejamiento, ese
+> ajuste no se sostiene.
+
+Plan, en orden:
+
+1. **Actualizar el driver del adaptador** — Configuración → Windows Update → Actualizaciones opcionales →
+   Controladores. Si no aparece nada, buscar el driver Realtek del chip del dongle.
+2. **Alternativa mejor:** probar el adaptador **Intel** de la mother (está deshabilitado). Si tiene antena
+   conectada es un radio mejor y con driver actual.
+3. **Re-emparejar limpio una vez** después del cambio de driver, y volver a destildar Hands-free.
+4. Si el evento 16 vuelve con driver nuevo, el problema es el dongle → reemplazarlo.
 
 ## Resumen de estado
 
