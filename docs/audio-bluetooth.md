@@ -239,6 +239,25 @@ Plan, en orden:
 3. **Re-emparejar limpio una vez** después del cambio de driver, y volver a destildar Hands-free.
 4. Si el evento 16 vuelve con driver nuevo, el problema es el dongle → reemplazarlo.
 
+### Checklist al cambiar de adaptador Bluetooth
+
+Cambiar de dongle **rompe el emparejamiento** (la clave vive en el adaptador viejo), así que:
+
+1. Sacar el adaptador viejo, poner el nuevo, instalar su driver.
+2. Los auriculares piden pairing **una vez** más → Allow.
+3. **Volver a destildar "Manos libres Telephony"** (el re-pareo reactiva los servicios).
+4. Verificar que no reaparezca la falla de autenticación:
+
+```powershell
+Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='BTHUSB'; Id=16} -MaxEvents 5
+```
+
+5. Usar **alargue USB** y evitar los puertos 3.0 (azules): emiten ruido en 2.4 GHz y arruinan la señal.
+6. Configuración → Windows Update → Actualizaciones opcionales → Controladores, por si hay un driver más nuevo.
+
+> Ojo: **Bluetooth 5.3 no mejora el audio**. Por A2DP Windows sigue usando SBC o AAC sin importar la
+> versión del adaptador; LE Audio necesita soporte del lado del auricular y del stack de Windows.
+
 ## Resumen de estado
 
 | Problema                             | Solución                                                   | Estado                      |
