@@ -11,7 +11,7 @@ Al conectar auriculares/ manos libres Bluetooth:
 2. Hay que cambiarse de pantalla, hacer clic, y volver.
 3. A veces el audio no pasa solo al dispositivo nuevo, o pasa en calidad de llamada.
 
-## Causa raíz: el perfil Hands-Free (HFP)
+## Los dos perfiles del auricular (Hands-Free y A2DP)
 
 Los auriculares Bluetooth registran **dos** endpoints de audio:
 
@@ -25,15 +25,18 @@ Ejemplo real en esta PC: `Headset (<modelo> Hands-Free)` junto a su par `Headpho
 Windows puede conectar el perfil Hands-Free y dejar el estéreo de lado, o cambiar el dispositivo
 por defecto a mitad de sesión.
 
-### Solución aplicada (2026-11): desactivar el servicio de manos libres
+### Solución intentada (2026-11): desactivar el servicio de manos libres
 
 **Panel de control → Dispositivos e impresoras → clic derecho en los auriculares → Propiedades →
 pestaña Servicios → destildar "Manos libres Telephony" (Hands-free Telephony).**
 
-Efecto: queda solo el endpoint A2DP. Windows ya no tiene a qué cambiarse y el audio sale siempre en estéreo.
+Efecto buscado: queda solo el endpoint A2DP, Windows no tiene a qué cambiarse y el audio sale siempre en
+estéreo.
 
-> **Estado: aplicado y en observación.** Si en algún momento hace falta usar el micrófono de los
-> auriculares para llamadas, hay que volver a tildarlo.
+> **Estado real (2026-11-20): quedó sin efecto y NO hace falta.** Cada re-emparejamiento reinstala los
+> servicios del dispositivo, así que el tilde se reactiva solo. Y el estado que hoy funciona —los auriculares
+> conectan al instante y los tres endpoints están `OK`— tiene Hands-free **habilitado**. Conclusión: HFP no
+> era el culpable del audio. No volver a destildarlo sin motivo; solo desordena el diagnóstico.
 
 ## Evidencia: qué dice el registro de eventos
 
@@ -73,11 +76,11 @@ parpadeaba como si se reiniciaran todos los dispositivos y quedaba trabada un mo
 y el overlay se puede desactivar. Si con la configuración de mínimo riesgo no vuelve a pasar, se queda.
 El protocolo completo está más abajo: [Protocolo de reintento](#protocolo-de-reintento-de-soundswitch).
 
-### AudioSwitcher (`FortyOneLtd.AudioSwitcher`) — herramienta actual y red de seguridad
+### AudioSwitcher (`FortyOneLtd.AudioSwitcher`) — plan B manual
 
-Portable, Ms-PL, de 2018 y sin mantenimiento, pero **funciona y no cuelga nada**. Hace exactamente lo que
-hace falta para el problema real: elegir salida **y entrada** con hotkeys por dispositivo (no ciclado) y un
-icono en la bandeja.
+Portable, Ms-PL, de 2018 y sin mantenimiento. Fue la herramienta diaria hasta que SoundSwitch quedó con el
+autostart (2026-11-20). Ahora vive en `Downloads` y **ya no arranca con Windows**: se conserva sólo como
+respaldo para lanzarlo a mano si SoundSwitch falla.
 
 Está en Winget y es **el mismo binario** que se venía usando a mano (`1.8.0.142`, Forty One Ltd.). El paquete
 es de tipo `portable`, así que se instala en `%LOCALAPPDATA%\Microsoft\WinGet\Packages\...` en vez de
@@ -267,6 +270,44 @@ Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='BTHUSB'; Id=16} 
 
 > Ojo: **Bluetooth 5.3 no mejora el audio**. Por A2DP Windows sigue usando SBC o AAC sin importar la
 > versión del adaptador; LE Audio necesita soporte del lado del auricular y del stack de Windows.
+
+### Configuración que mantiene el emparejamiento sano
+
+Estado exacto de la PC el 2026-11-20, con los auriculares conectando al instante. Si algún día vuelve el
+diálogo de "Pair device?", comparar contra esta tabla antes de tocar hardware.
+
+| Componente | Valor sano | Cómo verificarlo |
+| ---------- | ---------- | ---------------- |
+| Servicios del dispositivo (por adaptador) | `1101` SPP · `110b` A2DP Sink · `110c` AVRCP Target · `110e` AVRCP · `111e` Handsfree · `1124` HID · `fd2d`, `df21fe2c` — **todos `Instance=1`** | subclave `ServicesFor<serial-del-adaptador>` en `HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices\<MAC>\` |
+| Seguridad del vínculo | `SSP Paired=1`, `SSP Supported=1`, `SSP MITM Protected=0`, `IoCapability=3` | mismos valores en esa subclave |
+| Ahorro de energía del adaptador | **Desactivado** (`MSPower_DeviceEnable = False`) | `Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable` filtrando por `VID_0BDA` |
+| Fast Startup (inicio rápido) | **Desactivado** (`HiberbootEnabled = 0`) | `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power` |
+| Servicios de Windows | `bthserv` y `BTAGService` en **Manual / Running** (es lo normal: arrancan a demanda) | `Get-Service bthserv, BTAGService` |
+| Adaptador Intel de la mother | **Deshabilitado** (Code 22). No sirve: mala señal sin antena, y suma un radio fantasma | Administrador de dispositivos → Bluetooth |
+| Puerto USB | USB 2.0 o alargue, lejos de los 3.0 (azules: emiten ruido en 2.4 GHz) | — |
+| Driver | Realtek `1.6.1015.3018` (2021). **Si funciona, no lo toques** | Administrador de dispositivos → propiedades del adaptador |
+
+Reglas de oro, en orden de importancia:
+
+1. **Si funciona, no re-emparejes.** Cada re-pair genera clave nueva y reinstala servicios: es la operación
+   que más se acerca a "romper" un vínculo sano.
+2. **Si vuelve el diálogo de emparejamiento, el primer paso es re-emparejar limpio** (quitar dispositivo →
+   Add device). Eso fue justo lo que arregló esta PC, sin cambiar hardware.
+3. **El 5.3 del dongle no mejora el audio**: A2DP en Windows sigue en SBC/AAC. La versión no define la calidad.
+4. **El alargue USB vale más que un dongle nuevo** si el síntoma es señal.
+
+Chequeo de salud (30 segundos):
+
+```powershell
+# ¿volvió la falla de autenticación?
+Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='BTHUSB'; Id=16} -MaxEvents 5
+
+# ¿los endpoints están vivos (OK) o fantasma (PHANTOM)?
+Get-PnpDevice -PresentOnly | Where-Object FriendlyName -match 'Buds' | Select Status, Class, FriendlyName
+```
+
+> Nada de esto requiere editar el registro a mano: son valores para **leer** y comparar. El único que se
+> cambia desde la UI es "Manos libres Telephony" (y ya se vio que no hace falta tocarlo).
 
 ## Resumen de estado
 
