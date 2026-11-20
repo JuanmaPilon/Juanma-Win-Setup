@@ -198,6 +198,11 @@ Actualización (2026-11-18):
 - Primeras impresiones del uso diario: **sin parpadeos**. Sin banner, el overlay que se sospechaba como causa
   ya no existe.
 
+Autostart (2026-11-20): lo que arrancaba con Windows era **AudioSwitcher** desde `Downloads`, no SoundSwitch
+(que estaba instalado sin entrada de arranque). Se sacó `AudioSwitcher` de `HKCU\...\Run`, se agregó
+`SoundSwitch` apuntando a `%LOCALAPPDATA%\Programs\SoundSwitch\SoundSwitch.exe` y se re-exportó
+`configs/startup`. Con dos switchers arrancando juntos, los dos pelean por el dispositivo por defecto.
+
 **Falta**: correr la escalera de pruebas (fase A: 30 cambios seguidos en escritorio; fase C: una sesión de
 juego con un cambio en el medio). El veredicto se escribe acá cuando esté.
 
@@ -210,16 +215,16 @@ vinculado.
 
 Lo que se verificó en esta PC (2026-11-19):
 
-| Chequeo | Resultado |
-| ------- | --------- |
-| Vínculo en la PC (`BTHPORT\...\Devices\<MAC>`) | **Existe** → no se borra de este lado |
-| `LastConnected` del dispositivo | 2 días antes de la última conexión real → las conexiones nuevas **no** se registran como conexión de un dispositivo emparejado |
-| Perfiles PnP (A2DP, AVRCP, HFP) | Todos `OK` cuando está conectado |
-| **Log `System`, proveedor `BTHUSB`, Event ID 16** | **"The mutual authentication between the local Bluetooth adapter and a device … failed"** (varias veces el mismo día) |
-| Adaptadores presentes | **Dos**: Realtek BT 5.0 USB (`VID_0BDA&PID_8771`, OK) e Intel Wireless BT (`CM_PROB_DISABLED`, Code 22) |
-| Dueño del vínculo | `ServicesFor00e04c239987` = serial del **Realtek** (el Intel está deshabilitado, no participa) |
-| Ahorro de energía del adaptador | **Ya desactivado** (`MSPower_DeviceEnable = False`) → no es eso |
-| **Driver del adaptador** | **Realtek 1.6.1015.3018, del 2021-03-31** ← sospechoso principal |
+| Chequeo                                           | Resultado                                                                                                                      |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Vínculo en la PC (`BTHPORT\...\Devices\<MAC>`)    | **Existe** → no se borra de este lado                                                                                          |
+| `LastConnected` del dispositivo                   | 2 días antes de la última conexión real → las conexiones nuevas **no** se registran como conexión de un dispositivo emparejado |
+| Perfiles PnP (A2DP, AVRCP, HFP)                   | Todos `OK` cuando está conectado                                                                                               |
+| **Log `System`, proveedor `BTHUSB`, Event ID 16** | **"The mutual authentication between the local Bluetooth adapter and a device … failed"** (varias veces el mismo día)          |
+| Adaptadores presentes                             | **Dos**: Realtek BT 5.0 USB (`VID_0BDA&PID_8771`, OK) e Intel Wireless BT (`CM_PROB_DISABLED`, Code 22)                        |
+| Dueño del vínculo                                 | `ServicesFor00e04c239987` = serial del **Realtek** (el Intel está deshabilitado, no participa)                                 |
+| Ahorro de energía del adaptador                   | **Ya desactivado** (`MSPower_DeviceEnable = False`) → no es eso                                                                |
+| **Driver del adaptador**                          | **Realtek 1.6.1015.3018, del 2021-03-31** ← sospechoso principal                                                               |
 
 Diagnóstico: la clave de enlace guardada **no coincide** con la del auricular, la autenticación mutua falla
 (evento 16) y el dispositivo vuelve a modo emparejamiento. Con un driver de 2021 en un dongle Realtek, la
@@ -238,6 +243,11 @@ Plan, en orden:
    conectada es un radio mejor y con driver actual.
 3. **Re-emparejar limpio una vez** después del cambio de driver, y volver a destildar Hands-free.
 4. Si el evento 16 vuelve con driver nuevo, el problema es el dongle → reemplazarlo.
+
+**Resuelto (2026-11-20):** sin eventos 16 desde el 17/11, los tres endpoints de audio en `OK` (antes
+`CM_PROB_PHANTOM`) y los auriculares conectan al instante. **Sin cambiar el dongle**: el mismo adaptador
+Realtek sigue puesto, así que lo que lo arregló fue el **re-emparejamiento limpio del 17/11**. La lección:
+antes de comprar hardware, quitar el dispositivo y emparejar de nuevo.
 
 ### Checklist al cambiar de adaptador Bluetooth
 
