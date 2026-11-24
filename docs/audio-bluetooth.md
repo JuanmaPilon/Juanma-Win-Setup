@@ -20,7 +20,8 @@ Los auriculares Bluetooth registran **dos** endpoints de audio:
 | `Hands-Free` (manos libres) | Micrófono / llamadas   | Baja, mono |
 | A2DP (estéreo)              | Reproducción de música | Alta       |
 
-Ejemplo real en esta PC: `Headset (<modelo> Hands-Free)` junto a su par `Headphones (<modelo> Stereo)`.
+Ejemplo real en esta PC (REDMI Buds 8 Active): `Headset (REDMI Buds 8 Active Hands-Free)` junto a su par
+`Headphones (REDMI Buds 8 Active)`.
 
 Windows puede conectar el perfil Hands-Free y dejar el estéreo de lado, o cambiar el dispositivo
 por defecto a mitad de sesión.
@@ -37,6 +38,11 @@ estéreo.
 > servicios del dispositivo, así que el tilde se reactiva solo. Y el estado que hoy funciona —los auriculares
 > conectan al instante y los tres endpoints están `OK`— tiene Hands-free **habilitado**. Conclusión: HFP no
 > era el culpable del audio. No volver a destildarlo sin motivo; solo desordena el diagnóstico.
+>
+> **Corrección (2026-11-23):** esa conclusión vale sólo para el **parpadeo/trabado** de SoundSwitch. Para
+> **calidad de sonido** HFP sí es el culpable: mientras el micrófono de los auriculares esté en uso, Windows
+> abandona A2DP y el audio sale mono. Ver
+> [Calidad pésima con los REDMI Buds 8 Active](#calidad-pésima-con-los-redmi-buds-8-active-2026-11-23).
 
 ## Evidencia: qué dice el registro de eventos
 
@@ -271,6 +277,46 @@ Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='BTHUSB'; Id=16} 
 > Ojo: **Bluetooth 5.3 no mejora el audio**. Por A2DP Windows sigue usando SBC o AAC sin importar la
 > versión del adaptador; LE Audio necesita soporte del lado del auricular y del stack de Windows.
 
+### Calidad pésima con los REDMI Buds 8 Active (2026-11-23)
+
+Contexto: se cambió el dongle por un **TP-Link Bluetooth USB Adapter** (el driver que instala es
+`1.9.1038.3023`) y se re-emparejaron los **REDMI Buds 8 Active**. El re-pareo reinstaló los servicios
+Hands-Free, así que quedaron **tres endpoints activos al mismo tiempo**:
+
+| Endpoint                                    | Perfil      | Calidad            |
+| ------------------------------------------- | ----------- | ------------------ |
+| `Headphones (REDMI Buds 8 Active)`          | A2DP        | estéreo, buena     |
+| `Headset (REDMI Buds 8 Active Hands-Free)`  | HFP         | mono, de llamada   |
+| `Headset (REDMI Buds 8 Active)`             | HFP (alias) | mono, de llamada   |
+
+Síntoma: el audio sonaba "pésimo" — no con ruido ni cortes, sino **mono y opaco**.
+
+**Causa confirmada a mano:** con `Discord` corriendo y el **micrófono de los auriculares en uso**, Windows
+suspende A2DP y manda la salida al endpoint Hands-Free. Es cómo funciona el stack Bluetooth de Windows, no
+un bug del dongle: un radio no puede hacer A2DP (alta tasa, un sentido) y HFP (full-duplex, banda angosta) a
+la vez.
+
+**Prueba que lo cerró:** deshabilitar el micrófono activo devolvió el sonido correcto al instante, sin tocar
+nada más. O sea, el problema es **el micrófono de los buds**, no el perfil de salida.
+
+Regla: **si querés A2DP, el micrófono de los auriculares no puede estar en uso.** No hay setting que lo
+evite; es física del perfil, no configuración.
+
+Arreglo (el que quedó aplicado):
+
+1. Panel de control → Sonido → **Grabación** → clic derecho en `Headset (REDMI Buds 8 Active)` →
+   **Deshabilitar**. Al desaparecer el endpoint, Windows no tiene a dónde cambiarse.
+2. Usar otro micrófono: `Microphone (HyperX SoloCast 2)` o el del `CORSAIR VIRTUOSO`.
+3. En Discord: salida fija en `Headphones (REDMI Buds 8 Active)` y **entrada** en el micrófono de escritorio,
+   nunca en el de los buds.
+4. Después de cualquier reconexión, verificar que la salida siga en el endpoint **estéreo**.
+
+> ⚠️ Un re-emparejamiento **recrea** el endpoint del micrófono, así que hay que volver a deshabilitarlo. Es
+> el mismo patrón que "Manos libres Telephony": el re-pair reinstala servicios.
+>
+> Si hace falta el mic de los buds para una llamada real, hay que aceptar la calidad de llamada mientras
+> dure y volver a deshabilitarlo después.
+
 ### Configuración que mantiene el emparejamiento sano
 
 Estado exacto de la PC el 2026-11-20, con los auriculares conectando al instante. Si algún día vuelve el
@@ -313,9 +359,9 @@ Get-PnpDevice -PresentOnly | Where-Object FriendlyName -match 'Buds' | Select St
 
 | Problema                             | Solución                                                   | Estado                      |
 | ------------------------------------ | ---------------------------------------------------------- | --------------------------- |
-| Perfil Hands-Free agarra el audio    | Destildar "Manos libres Telephony"                         | ✅ aplicado, en observación |
+| Perfil Hands-Free agarra el audio    | **Deshabilitar el micrófono de los buds** (el toggle de Telephony no alcanza) | ✅ confirmado 2026-11-23     |
 | Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)           | 🔄 reintento en curso       |
-| Dispositivo de audio incorrecto      | Sin automatización por ahora; el toggle HFP ataca la causa | ⏸ pendiente                 |
+| Dispositivo de audio incorrecto      | Sin automatización por ahora; el mic deshabilitado evita el salto | ⏸ pendiente                 |
 | Toasts en el monitor equivocado      | Windhawk `notifications-placement`, `monitor = 0`          | ✅ disponible               |
 | Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                           | ✅ disponible               |
 
