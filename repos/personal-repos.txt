@@ -1,0 +1,12 @@
+# Repos personales que el setup clona en el perfil del usuario ($env:USERPROFILE).
+#
+# Formato: una URL por linea. `#` para comentarios y lineas vacias.
+# `owner/repo` se expande solo a https://github.com/owner/repo.
+# El nombre de la carpeta sale del ultimo segmento de la URL, sin `.git`.
+#
+# Son repos privados: la autenticacion la resuelve Git Credential Manager
+# (credential.helper=manager, ya activo con Git for Windows). NUNCA poner
+# tokens ni claves aca: este archivo es publico.
+
+https://github.com/JuanmaPilon/Juanma-Music
+https://github.com/JuanmaPilon/Juanma-Images

@@ -61,9 +61,10 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
 | Ruta                        | Qué hay                                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------- |
 | `Menu.cmd`                  | Launcher recomendado → `scripts/Menu.ps1`                                                   |
-| `Setup.ps1`                 | Pipeline completo: Apps → Cleanup → Import-Configs → Finalize                               |
+| `Setup.ps1`                 | Pipeline completo: Apps → Cleanup → Repos → Import-Configs → Finalize                      |
 | `apps/winget-apps.txt`      | IDs de Winget a instalar, uno por línea, `#` para comentarios                               |
 | `apps/winget-remove.txt`    | Denylist de paquetes deprecados: `PackageId \| DisplayNamePattern \| ExtraSilentArgs`       |
+| `repos/personal-repos.txt`  | URLs de repos privados a clonar en el perfil del usuario (sólo URLs, nunca credenciales)    |
 | `configs/<mod>/`            | `import.ps1` + `README.md` de cada módulo (público: sólo esos dos archivos)                 |
 | `scripts/`                  | `Export-*.ps1`, `Install-*.ps1`, `Import-*.ps1`, `Remove-*.ps1`, `Update-*.ps1`, `Menu.ps1` |
 | `modules/SetupHelpers.psm1` | Helpers compartidos de consola y Winget                                                     |
@@ -81,13 +82,22 @@ El cleanup de apps deprecadas mata los procesos de la app, prueba `winget uninst
 uninstaller propio con su switch silencioso (MSI `/qn`, NSIS `/S`, Inno `/VERYSILENT`, Squirrel, familia
 Firefox `helper.exe -ms`). `-AllowInteractiveFallback` es el último recurso, opt-in.
 
+**Repos personales.** `repos/personal-repos.txt` lista repos privados (una URL por línea, `#` para
+comentarios; `owner/repo` se expande a `https://github.com/owner/repo`). `scripts/Clone-PersonalRepos.ps1`
+los clona en `$env:USERPROFILE` usando el último segmento de la URL como nombre de carpeta. Es idempotente
+(`git clone` si no existe, `git pull --ff-only` si existe), tolerante (warning + sigue) y soporta `-DryRun`.
+Una carpeta con el mismo nombre pero sin `.git` adentro **no se toca**: pisarla puede borrar datos del usuario.
+Las credenciales las resuelve **Git Credential Manager** (`credential.helper=manager`, activo a nivel system
+con Git for Windows): nunca hay tokens en el repo. El script corre con `GIT_TERMINAL_PROMPT=0` para que un
+clone sin credenciales falle rápido en vez de colgar el setup.
+
 ## Puntos de entrada y comandos
 
 ```powershell
 # menú interactivo (vía recomendada, incluye detección de admin y elevación)
 .\Menu.cmd
 
-# pipeline completo; soporta -DryRun, -SkipApps, -SkipCleanup, -SkipConfigs, -SkipFinalize
+# pipeline completo; soporta -DryRun, -SkipApps, -SkipCleanup, -SkipRepos, -SkipConfigs, -SkipFinalize
 .\Setup.ps1 -DryRun
 ```
 
@@ -98,6 +108,7 @@ Etapas sueltas:
 | Instalar Winget        | `scripts/Install-Winget.ps1`                                                             | —               |
 | Instalar apps          | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                             | sí              |
 | Desinstalar deprecados | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                    | sí              |
+| Clonar repos personales | `scripts/Clone-PersonalRepos.ps1 -RepositoryRoot .` (idempotente: clone o pull)          | sí              |
 | Importar configs       | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí              |
 | Actualizar todo        | `scripts/Update-Apps.ps1 -RepositoryRoot .`                                              | sí (sólo lista) |
 | Exportar todo          | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                       | —               |
@@ -230,11 +241,9 @@ que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar 
 - Validar si el toggle de "Manos libres Telephony" alcanza como solución completa de audio.
 - `configs/git/README.md` falta (existe el `import.ps1`).
 - Validación end-to-end en una segunda máquina después de cada cambio grande.
-- **Bootstrap de repos propios (idea, a definir).** El setup debería clonar 2 repos personales en una carpeta
-  de trabajo para tenerlos listos desde el primer arranque. Falta definir: cuáles repos, en qué ruta destino,
-  y cómo resolver credenciales (los repos privados necesitan auth; no guardar tokens en el repo). Requisitos
-  ya claros: idempotente (`git clone` si no existe, `git pull` si existe), tolerante a fallos de red, y
-  `-DryRun` soportado. Nunca hardcodear la ruta del usuario.
+- Validar el bootstrap de repos en una máquina **limpia**: el flujo ya existe (`repos/personal-repos.txt`),
+  pero todavía no se corrió en un Windows recién instalado, donde Git Credential Manager pide auth la
+  primera vez. Nunca hardcodear la ruta del usuario.
 
 ## Dónde está el detalle
 

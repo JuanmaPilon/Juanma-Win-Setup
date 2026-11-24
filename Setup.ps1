@@ -2,6 +2,7 @@
 param(
     [switch]$SkipApps,
     [switch]$SkipCleanup,
+    [switch]$SkipRepos,
     [switch]$SkipConfigs,
     [switch]$SkipFinalize,
     [switch]$DryRun
@@ -24,6 +25,10 @@ if (-not $SkipApps) {
 
 if (-not $SkipCleanup) {
     & (Join-Path $repoRoot 'scripts/Remove-DeprecatedApps.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
+}
+
+if (-not $SkipRepos) {
+    & (Join-Path $repoRoot 'scripts/Clone-PersonalRepos.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
 }
 
 if (-not $SkipConfigs) {

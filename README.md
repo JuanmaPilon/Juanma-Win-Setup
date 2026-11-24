@@ -18,6 +18,8 @@ It is designed to restore a machine to your preferred state quickly: install app
 - Windows UI preferences (mouse and theme settings).
 - Environment variables.
 - Startup apps (Run entries and Startup folder).
+- Personal private repositories cloned into your user profile (`repos/personal-repos.txt`), created on first
+  run and kept up to date with a fast-forward pull.
 - Terminal setup (Windows Terminal, PowerShell profiles, Oh My Posh, fastfetch).
 - Wisp (launcher + dock that replaces the taskbar) configuration. Manual install, `config.toml` is versioned privately.
 - Windhawk mods and settings (normal install with service, or portable install). Mods travel compiled, so nothing needs to be reinstalled from the catalog. **Paused**: replaced by Wisp; kept for going back.
@@ -27,6 +29,7 @@ It is designed to restore a machine to your preferred state quickly: install app
 - apps/: application manifests and Winget package lists
 - apps/winget-apps.txt: packages to install
 - apps/winget-remove.txt: deprecated packages to uninstall (cleanup stage)
+- repos/: personal private repositories to clone on a fresh machine (URLs only, never credentials)
 - configs/: application configuration backups and import hooks
 - registry/: grouped registry files for exceptional changes
 - scripts/: focused PowerShell scripts for setup stages
@@ -54,7 +57,7 @@ Alternative launcher:
 Recommended order on a fresh machine:
 
 1. Install Winget.
-2. Run full setup (installs apps, removes deprecated ones, imports configs).
+2. Run full setup (installs apps, removes deprecated ones, clones your personal repos, imports configs).
 3. Import environment variables.
 4. Import config backups.
 5. After a few days, run "Update all apps" from the menu to catch updates.
