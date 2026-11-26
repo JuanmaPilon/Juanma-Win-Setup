@@ -348,7 +348,7 @@ Get-PnpDevice -PresentOnly | Where-Object FriendlyName -match 'Buds' | Select St
 | Problema                             | Solución                                                                      | Estado                   |
 | ------------------------------------ | ----------------------------------------------------------------------------- | ------------------------ |
 | Perfil Hands-Free agarra el audio    | **Deshabilitar el micrófono de los buds** (el toggle de Telephony no alcanza) | ✅ confirmado 2026-11-23 |
-| Pide emparejar y reconecta mal        | Re-pair limpio + dongle con driver moderno (TP-Link `1.9.x`)                 | ✅ casi nulo 2026-11-26  |
+| Pide emparejar y reconecta mal       | Re-pair limpio + dongle con driver moderno (TP-Link `1.9.x`)                  | ✅ casi nulo 2026-11-26  |
 | Elegir salida/entrada rápido         | SoundSwitch                                                                   | ✅ adoptado 2026-11-26   |
 | Dispositivo de audio incorrecto      | Sin automatización por ahora; el mic deshabilitado evita el salto             | ⏸ pendiente              |
 | Toasts en el monitor equivocado      | Sin solución nativa; hacer principal el monitor en uso                        | ⚠️ sin herramienta       |
