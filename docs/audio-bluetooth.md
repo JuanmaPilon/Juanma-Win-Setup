@@ -66,7 +66,7 @@ hitch en DWM. Es el único componente que se puede apagar sin perder nada útil.
 
 ## Herramientas evaluadas
 
-### SoundSwitch (`AntoineAflalo.SoundSwitch`) — reintento en curso (2026-11)
+### SoundSwitch (`AntoineAflalo.SoundSwitch`) — adoptado (2026-11-26)
 
 Lo que ofrece y por qué sigue siendo la mejor opción en features:
 
@@ -82,21 +82,6 @@ parpadeaba como si se reiniciaran todos los dispositivos y quedaba trabada un mo
 y el overlay se puede desactivar. Si con la configuración de mínimo riesgo no vuelve a pasar, se queda.
 El protocolo completo está más abajo: [Protocolo de reintento](#protocolo-de-reintento-de-soundswitch).
 
-### AudioSwitcher (`FortyOneLtd.AudioSwitcher`) — plan B manual
-
-Portable, Ms-PL, de 2018 y sin mantenimiento. Fue la herramienta diaria hasta que SoundSwitch quedó con el
-autostart (2026-11-20). Ahora vive en `Downloads` y **ya no arranca con Windows**: se conserva sólo como
-respaldo para lanzarlo a mano si SoundSwitch falla.
-
-Está en Winget y es **el mismo binario** que se venía usando a mano (`1.8.0.142`, Forty One Ltd.). El paquete
-es de tipo `portable`, así que se instala en `%LOCALAPPDATA%\Microsoft\WinGet\Packages\...` en vez de
-`Downloads`, que era una ruta no portable.
-
-No tiene reglas automáticas ni perfiles. Es el plan B si SoundSwitch falla otra vez.
-
-> Si se queda SoundSwitch, AudioSwitcher se desinstala (o se deja dormido sin autostart) para no tener dos
-> switchers peleando por el mismo default device.
-
 ### Wisp — parcialmente útil
 
 El dock de Wisp puede mostrar `bluetooth` y `sound` como secciones de estado, y el launcher tiene comandos
@@ -109,13 +94,11 @@ está el mouse, sin depender del toast. **No reemplaza un switcher**: no maneja 
 
 ## Protocolo de reintento de SoundSwitch
 
-### Paso 0 — Red de seguridad, antes de instalar nada
+### Paso 0 — Red de seguridad (retirado)
 
-```powershell
-winget install --id FortyOneLtd.AudioSwitcher -e
-```
-
-Así nunca se queda sin herramienta para salida/entrada. SoundSwitch se instala después.
+En su momento se instaló un switcher alternativo como red, para no quedarse sin herramienta si SoundSwitch
+fallaba. **Ya no existe**: SoundSwitch es el único, está en `apps/winget-apps.txt` y el alternativo pasó a
+`apps/winget-remove.txt`, así que una máquina nueva arranca con la herramienta buena y sin plan B.
 
 ### Paso 1 — Configuración de mínimo riesgo
 
@@ -170,9 +153,8 @@ No hace falta reiniciar la PC ni desinstalar de urgencia.
 
 Hecho:
 
-1. `winget install --id FortyOneLtd.AudioSwitcher -e` → red de seguridad instalada.
-2. `winget install --id AntoineAflalo.SoundSwitch -e` → 7.4.1 instalado.
-3. Notificaciones cambiadas de banner a **solo sonido**.
+1. `winget install --id AntoineAflalo.SoundSwitch -e` → 7.4.1 instalado.
+2. Notificaciones cambiadas de banner a **solo sonido**.
 
 Detalle técnico útil: el enum `NotificationType` del proyecto es
 `DefaultWindowsNotification = 0`, `SoundNotification = 1`, `NoNotification = 2`,
@@ -192,20 +174,21 @@ al salir, misma trampa que Wisp):
 Actualización (2026-11-18):
 
 - Onboarding completado (`FirstRun = false`).
-- **AudioSwitcher desinstalado**: ya no hay dos switchers compitiendo por el dispositivo por defecto.
+- **Switcher alternativo desinstalado**: ya no hay dos compitiendo por el dispositivo por defecto.
 - **SoundSwitch no tiene autostart configurado** (ni clave `Run` ni carpeta Startup). Para que la prueba sea
   real hay que activar _Start automatically with Windows_ en su configuración; si no, tras reiniciar no está
   corriendo y "parece que funciona" justamente porque no está.
 - Primeras impresiones del uso diario: **sin parpadeos**. Sin banner, el overlay que se sospechaba como causa
   ya no existe.
 
-Autostart (2026-11-20): lo que arrancaba con Windows era **AudioSwitcher** desde `Downloads`, no SoundSwitch
-(que estaba instalado sin entrada de arranque). Se sacó `AudioSwitcher` de `HKCU\...\Run`, se agregó
+Autostart (2026-11-20): lo que arrancaba con Windows era el switcher viejo desde `Downloads`, no SoundSwitch
+(que estaba instalado sin entrada de arranque). Se sacó esa clave de `HKCU\...\Run`, se agregó
 `SoundSwitch` apuntando a `%LOCALAPPDATA%\Programs\SoundSwitch\SoundSwitch.exe` y se re-exportó
 `configs/startup`. Con dos switchers arrancando juntos, los dos pelean por el dispositivo por defecto.
 
-**Falta**: correr la escalera de pruebas (fase A: 30 cambios seguidos en escritorio; fase C: una sesión de
-juego con un cambio en el medio). El veredicto se escribe acá cuando esté.
+**Veredicto (2026-11-26): se queda.** En uso diario desde el 2026-11-20 sin parpadeos ni trabas al cambiar de
+dispositivo. La escalera formal (fase A: 30 cambios seguidos; fase C: una sesión de juego con un cambio en el
+medio) no se corrió como tal, pero el síntoma original no volvió en seis días de uso, juegos incluidos.
 
 ### Los auriculares piden emparejarse cada vez (BTHUSB Event ID 16)
 
@@ -366,7 +349,7 @@ Get-PnpDevice -PresentOnly | Where-Object FriendlyName -match 'Buds' | Select St
 | ------------------------------------ | ----------------------------------------------------------------------------- | ------------------------ |
 | Perfil Hands-Free agarra el audio    | **Deshabilitar el micrófono de los buds** (el toggle de Telephony no alcanza) | ✅ confirmado 2026-11-23 |
 | Pide emparejar y reconecta mal        | Re-pair limpio + dongle con driver moderno (TP-Link `1.9.x`)                 | ✅ casi nulo 2026-11-26  |
-| Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)                              | 🔄 reintento en curso    |
+| Elegir salida/entrada rápido         | SoundSwitch                                                                   | ✅ adoptado 2026-11-26   |
 | Dispositivo de audio incorrecto      | Sin automatización por ahora; el mic deshabilitado evita el salto             | ⏸ pendiente              |
 | Toasts en el monitor equivocado      | Sin solución nativa; hacer principal el monitor en uso                        | ⚠️ sin herramienta       |
 | Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                                              | ✅ disponible            |

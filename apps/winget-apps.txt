@@ -33,8 +33,8 @@ Fastfetch-cli.Fastfetch
 svenstaro.genact
 cowboy8625.rusty-rain
 
-# Audio: switching output/input devices (portable; same binary as the one used by hand before)
-FortyOneLtd.AudioSwitcher
+# Audio: switching output/input devices (adoptado 2026-11-26; settings en %APPDATA%\SoundSwitch)
+AntoineAflalo.SoundSwitch
 
 # File search index: Wisp uses it for `?query` when it is running (fallback: Windows Search index).
 # It registers its own HKLM Run entry, so no startup entry needs to be exported.

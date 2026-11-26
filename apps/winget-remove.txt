@@ -23,5 +23,8 @@ StartIsBack.StartAllBack
 # No longer used
 ZhornSoftware.Stickies
 
+# Replaced by AntoineAflalo.SoundSwitch (in daily use since 2026-11-20)
+FortyOneLtd.AudioSwitcher
+
 # No longer used (often MSI-based: uninstalled with msiexec /qn)
 ElectronicArts.EADesktop

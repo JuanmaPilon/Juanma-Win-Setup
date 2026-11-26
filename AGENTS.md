@@ -213,11 +213,11 @@ script descubre que le falta elevación, tiene que **decirlo fuerte y salir limp
   `%LOCALAPPDATA%\Programs\Wisp`. No tiene botón de Start en el dock (sólo el de búsqueda).
 - **FancyZones** cubre "abrir ventanas nuevas en el monitor activo" (`openWindowOnActiveMonitor = true`).
   No hace falta nada más para eso, y tener dos cosas compitiendo rompe el resultado.
-- **SoundSwitch en reevaluación (2026-11).** El primer intento se descartó porque al cambiar de dispositivo,
-  sobre todo en juego, la PC parpadeaba y quedaba trabada. El registro de eventos no muestra ni un `TDR`
-  (4101) ni reinicios de `Audiosrv`, así que la causa es el **banner overlay**, no el audio. Se está
-  reintentando con notificaciones en `Sound only` y sin triggers. Protocolo y criterio de corte en
-  `docs/audio-bluetooth.md`. Si vuelve a fallar, `FortyOneLtd.AudioSwitcher` es el plan B.
+- **SoundSwitch es el switcher (2026-11-26).** El primer intento se descartó porque al cambiar de dispositivo,
+  sobre todo en juego, la PC parpadeaba y quedaba trabada. El registro de eventos no mostraba ni un `TDR`
+  (4101) ni reinicios de `Audiosrv`, así que la causa era el **banner overlay**, no el audio. Con
+  notificaciones en `Sound only` y sin triggers está en uso diario sin problemas desde el 2026-11-20.
+  Decisiones y descartes en `docs/audio-bluetooth.md`.
 - **Audio Bluetooth**: los auriculares exponen `Hands-Free` (mono, calidad de llamada) y A2DP (estéreo).
   La solución de raíz es destildar "Manos libres Telephony" en las propiedades del dispositivo.
 
