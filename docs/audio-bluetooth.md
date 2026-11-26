@@ -103,17 +103,9 @@ El dock de Wisp puede mostrar `bluetooth` y `sound` como secciones de estado, y 
 `bt` (dispositivos pareados), `wifi`, `vol`, y el panel `Now`. Sirve para conectar/ver desde el monitor donde
 está el mouse, sin depender del toast. **No reemplaza un switcher**: no maneja la entrada del micrófono.
 
-### Windhawk `notifications-placement` — la única solución al monitor del toast
-
-Mod de `m417z` (autor de Windhawk), incluido en Windhawk. Con `monitor = 0` mueve **todos los toasts**
-(incluido el de Bluetooth conectado) al monitor donde está el cursor.
-
-Actualmente el módulo Windhawk del repo está pausado porque Wisp reemplazó la taskbar, pero este mod es
-independiente de la taskbar y sigue funcionando con Wisp: inyecta sólo en `explorer.exe` y
-`ShellExperienceHost.exe`.
-
-Windows no tiene ningún setting ni API pública para elegir el monitor de las notificaciones. Las alternativas
-reales son este mod, o marcar como principal el monitor que se usa.
+> **Monitor del toast (2026-11-26).** Windows no tiene setting ni API pública para elegir en qué monitor
+> aparecen las notificaciones. La vía que existía (un mod de terceros) se descartó junto con el resto de esas
+> herramientas; lo que queda es hacer principal el monitor que se está usando (`Toggle-Display.cmd`).
 
 ## Protocolo de reintento de SoundSwitch
 
@@ -187,7 +179,7 @@ Detalle técnico útil: el enum `NotificationType` del proyecto es
 `CustomNotification = 3` (retirado), `ToastNotification = 4` (retirado), `BannerNotification = 5`.
 El valor por defecto era **5 (banner)**. Se editó
 `%APPDATA%\SoundSwitch\SoundSwitchConfiguration.json` con la app **cerrada** (si está abierta pisa el archivo
-al salir, misma trampa que Windhawk y Wisp):
+al salir, misma trampa que Wisp):
 
 | Campo                        | Antes | Ahora | Significado |
 | ---------------------------- | ----- | ----- | ----------- |
@@ -376,7 +368,7 @@ Get-PnpDevice -PresentOnly | Where-Object FriendlyName -match 'Buds' | Select St
 | Pide emparejar y reconecta mal        | Re-pair limpio + dongle con driver moderno (TP-Link `1.9.x`)                 | ✅ casi nulo 2026-11-26  |
 | Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)                              | 🔄 reintento en curso    |
 | Dispositivo de audio incorrecto      | Sin automatización por ahora; el mic deshabilitado evita el salto             | ⏸ pendiente              |
-| Toasts en el monitor equivocado      | Windhawk `notifications-placement`, `monitor = 0`                             | ✅ disponible            |
+| Toasts en el monitor equivocado      | Sin solución nativa; hacer principal el monitor en uso                        | ⚠️ sin herramienta       |
 | Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                                              | ✅ disponible            |
 
 ## Otras cosas vistas en el log (no relacionadas, pero para no perderlas)

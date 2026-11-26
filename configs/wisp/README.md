@@ -1,6 +1,6 @@
 # Wisp configuration
 
-[Wisp](https://github.com/SumirSeth/wisp) es un launcher + dock para Windows 11 que **reemplaza la taskbar**: la oculta y dibuja su propio dock (apps, tray, estado, reloj) que sigue al monitor donde está el mouse. Reemplaza en este repo a los mods de taskbar de Windhawk.
+[Wisp](https://github.com/SumirSeth/wisp) es un launcher + dock para Windows 11 que **reemplaza la taskbar**: la oculta y dibuja su propio dock (apps, tray, estado, reloj) que sigue al monitor donde está el mouse.
 
 ## Instalación del programa
 
@@ -93,4 +93,3 @@ dispositivos Bluetooth + volumen por app + media en una sola pantalla, se abre c
 
 - Si Wisp se cierra o crashea, la taskbar de Windows vuelve (con todo el tray). Es la red de seguridad.
 - Wisp se actualiza solo (`check_for_updates`); el proyecto es joven y se mueve rápido, así que un cambio de esquema en `config.toml` puede requerir re-exportar.
-- Con `hide_taskbar = true`, los mods de taskbar/tray de Windhawk dejan de tener sentido. Los que sí siguen aplicando (`windows-11-start-menu-styler`, `windows-11-notification-center-styler`, `notifications-placement`) no se pisan con Wisp.

@@ -14,14 +14,11 @@
 # Replaced by Mozilla.Firefox (Firefox-family uninstaller: uninstall\helper.exe -ms)
 Zen-Team.Zen-Browser
 
-# Replaced by Windhawk (taskbar + start menu styling)
+# No longer used (taskbar + start menu styling)
 StartIsBack.StartAllBack
 
 # Replaced by SimpleStickyNotes
 63BeetleSmurf.PinnyNotes
-
-# Replaced by Wisp (dock + launcher). Re-add to winget-apps.txt if Wisp does not stick.
-RamenSoftware.Windhawk
 
 # No longer used
 ZhornSoftware.Stickies

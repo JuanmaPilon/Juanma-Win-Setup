@@ -51,7 +51,7 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
   son **esperados**: hay branch protection configurada en GitHub y el push pasa por ser el dueño.
   No hay nada que arreglar — **no** cambies la configuración del repo ni abras un PR para "cumplir".
 - Mensajes de commit en imperativo y con scope, como los que ya usa el repo:
-  `feat(wisp):`, `fix(windhawk):`, `docs(audio):`, `chore:`. Un commit por cambio coherente.
+  `feat(wisp):`, `fix(repos):`, `docs(audio):`, `chore:`. Un commit por cambio coherente.
   Si el "por qué" no es obvio, agregar un segundo `-m` con el cuerpo.
 - Nunca `git push --force` ni reescribir historia ya pusheada, salvo pedido explícito del dueño.
 - Validar antes de commitear: ver la receta de validación más abajo.
@@ -72,8 +72,8 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
 | `docs/`                     | Notas de decisiones y cosas ya probadas                                                     |
 | `private-configs/`          | Backups reales. **GIT-IGNORED**                                                             |
 
-Módulos de configuración: `powertoys`, `windows-ui`, `startup`, `terminal`, `wisp`, `windhawk` (pausado),
-`git`, `manual-installs` (sólo docs).
+Módulos de configuración: `powertoys`, `windows-ui`, `startup`, `terminal`, `wisp`, `git`,
+`manual-installs` (sólo docs).
 
 El backup de recuperación es **copiar la carpeta `private-configs/` completa** a un medio externo (USB,
 nube, otra PC). No existe script de empaquetado a propósito: nunca dejarla dentro del repo.
@@ -184,9 +184,9 @@ comillas, usuario distinto).
 
 ## Permisos de administrador
 
-Necesitan elevación: el import de Windhawk (escribe `HKLM` + `%ProgramData%` + servicio) y cualquier cosa
-de nivel máquina. El menú detecta si la sesión es admin y ofrece relanzarse elevado. Si un script descubre
-que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar a medias).
+Necesitan elevación: cualquier cosa de nivel máquina (`HKLM`, `%ProgramData%`, servicios). Hoy ningún módulo
+lo exige de forma obligatoria. El menú detecta si la sesión es admin y ofrece relanzarse elevado. Si un
+script descubre que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar a medias).
 
 ## Trampas ya resueltas (no reintroducir)
 
@@ -196,18 +196,8 @@ que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar 
 - **Parser de startup**: cortar el comando en el primer espacio rompe rutas sin comillas con espacios.
   Usar regex sobre la ruta con extensión (`.exe|.bat|.cmd|.lnk|.msc|.com`). Además, filtrar entradas _stale_
   (ejecutable inexistente) al exportar: si en el backup ves una entrada muerta, volvé a correr el export.
-- **Windhawk (modo registro)**: un mod "existe" sólo si están las tres cosas → clave
-  `HKLM\SOFTWARE\Windhawk\Engine\Mods\<id>` con `LibraryFileName`, el DLL en
-  `%ProgramData%\Windhawk\Engine\Mods\<arch>\<LibraryFileName>`, y la entrada en `userprofile.json`.
-  Si falta el DLL, la UI muestra cero mods. El export debe incluir los DLLs; el import debe **parar la UI**
-  (`Windhawk.exe`) antes de escribir, porque el proceso reescribe `userprofile.json` al cerrarse.
-- **El import de Windhawk detecta el modo ANTES** de cualquier chequeo de ruta portable; antes abortaba con
-  "portable install not found" y nunca tocaba la instalación normal.
-- **Nunca** un mod de Windhawk con `Include = *`: inyecta el DLL en todos los procesos, juegos con anti-cheat
-  incluidos, y es la causa de crashes. Los mods deben apuntar a procesos del shell
-  (`explorer.exe`, `ShellExperienceHost.exe`, `StartMenuExperienceHost.exe`).
 - **Importadores que no frenan la app dueña del archivo** escriben y después la app pisa todo al cerrarse.
-  Patrón: parar → escribir → volver a arrancar (Windhawk, Wisp).
+  Patrón: parar → escribir → volver a arrancar (Wisp).
 - **PowerToys**: `backup_restore_settings.json` en `%LOCALAPPDATA%\PowerToys` y el `.ptb` en
   `Documents/PowerToys/Backup` son necesarios para Command Palette y atajos. La visibilidad de íconos de
   bandeja depende de Windows (`HKCU\Control Panel\NotifyIconSettings`), no de PowerToys.
@@ -217,15 +207,12 @@ que le falta elevación, tiene que **decirlo fuerte y salir limpio** (no fallar 
 
 ## Estado actual de las decisiones (2026-11)
 
-- **Wisp reemplazó a Windhawk** para la taskbar: es un dock + launcher (Rust, ~2 MB, sin admin) que oculta
+- **Wisp es la taskbar**: es un dock + launcher (Rust, ~2 MB, sin admin) que oculta
   la taskbar de Windows. Config en `%APPDATA%\wisp\config.toml` (un solo archivo), autostart vía
   `HKCU\...\Run` como `Wisp`. **No tiene paquete en Winget**: instalación manual en
   `%LOCALAPPDATA%\Programs\Wisp`. No tiene botón de Start en el dock (sólo el de búsqueda).
-- **Windhawk quedó pausado**, no borrado: sigue en `apps/winget-remove.txt` y su backup sirve de rollback.
-  Con `hide_taskbar = true` los mods de taskbar/tray pierden sentido; los que siguen aplicando son
-  `windows-11-start-menu-styler`, `windows-11-notification-center-styler` y `notifications-placement`.
 - **FancyZones** cubre "abrir ventanas nuevas en el monitor activo" (`openWindowOnActiveMonitor = true`).
-  No hace falta un mod para eso, y tener los dos compitiendo rompe el resultado.
+  No hace falta nada más para eso, y tener dos cosas compitiendo rompe el resultado.
 - **SoundSwitch en reevaluación (2026-11).** El primer intento se descartó porque al cambiar de dispositivo,
   sobre todo en juego, la PC parpadeaba y quedaba trabada. El registro de eventos no muestra ni un `TDR`
   (4101) ni reinicios de `Audiosrv`, así que la causa es el **banner overlay**, no el audio. Se está

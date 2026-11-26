@@ -22,7 +22,6 @@ It is designed to restore a machine to your preferred state quickly: install app
   run and kept up to date with a fast-forward pull.
 - Terminal setup (Windows Terminal, PowerShell profiles, Oh My Posh, fastfetch).
 - Wisp (launcher + dock that replaces the taskbar) configuration. Manual install, `config.toml` is versioned privately.
-- Windhawk mods and settings (normal install with service, or portable install). Mods travel compiled, so nothing needs to be reinstalled from the catalog. **Paused**: replaced by Wisp; kept for going back.
 
 ## Repository layout
 
@@ -62,7 +61,7 @@ Recommended order on a fresh machine:
 4. Import config backups.
 5. After a few days, run "Update all apps" from the menu to catch updates.
 
-Stages that touch `HKLM`/`ProgramData` (the Windhawk registry import) need an elevated session; the menu offers to relaunch itself as administrator when needed.
+Stages that touch `HKLM`/`ProgramData` need an elevated session; the menu offers to relaunch itself as administrator when needed.
 
 ## Removing deprecated apps
 
@@ -93,7 +92,7 @@ Sensitive or machine-specific data should not be committed by default.
 
 ## Config coverage ✅
 
-The current setup flow focuses on environment variables, PowerToys, Windows UI preferences (mouse/theme), startup apps, terminal configuration, Wisp and Windhawk. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
+The current setup flow focuses on environment variables, PowerToys, Windows UI preferences (mouse/theme), startup apps, terminal configuration and Wisp. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
 
 Apps without a Winget package are tracked in [configs/manual-installs/README.md](configs/manual-installs/README.md), with vendor links and instructions to keep installers under `private-configs/manual-installs/`.
 

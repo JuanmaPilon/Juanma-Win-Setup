@@ -12,9 +12,8 @@ lleguen al documento correcto, y para dejar a mano las reglas que nunca se puede
 3. Todo tiene que ser **idempotente** y modular (un script = una responsabilidad).
 4. Mensajes de consola **sólo** por `modules/SetupHelpers.psm1`; los importadores lo importan con `-Force`.
 5. Exportadores con `$ErrorActionPreference = 'Stop'`; importadores con `'Continue'` y tolerantes.
-6. Ningún mod de Windhawk con `Include = *` (inyecta el DLL en todos los procesos y crashea juegos).
-7. `-DryRun` tiene que propagarse de punta a punta y no escribir nada.
-8. Nunca commitear instaladores, claves de licencia, seriales ni tokens.
+6. `-DryRun` tiene que propagarse de punta a punta y no escribir nada.
+7. Nunca commitear instaladores, claves de licencia, seriales ni tokens.
 
 ## Antes de dar un cambio por terminado
 
