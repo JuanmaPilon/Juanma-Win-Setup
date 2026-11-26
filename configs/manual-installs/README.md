@@ -19,7 +19,7 @@ siempre que los archivos estén en `private-configs/manual-installs/<carpeta>/`:
 ```text
 private-configs/manual-installs/          <- git-ignored, nunca se commitea
 ├── archon\*.exe            NSIS, se ejecuta con /S
-├── alseye-bem\*.exe        sin switch silencioso: abre la UI
+├── alseye-bem\*.exe        Inno Setup, se ejecuta con /VERYSILENT
 ├── nvidia\*.exe            sin switch silencioso: abre la UI
 ├── canon\*.exe             sin switch silencioso: abre la UI
 ├── wisp\*.zip              se extrae en %LOCALAPPDATA%\Programs\Wisp
@@ -38,7 +38,7 @@ private-configs/manual-installs/          <- git-ignored, nunca se commitea
 
 | App                                                    | Por qué es manual                                                                                                   | De dónde obtenerla                                                                                                                                                                                                             |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ALSEYE BEM (utility del cooler)                        | Sin paquete en Winget                                                                                               | Sitio oficial de ALSEYE (sección de descargas/software, buscar "BEM"). Guardar el instalador en `private-configs/manual-installs/alseye-bem/`.                                                                                 |
+| ALSEYE BEM (utility del cooler)                        | Sin paquete en Winget                                                                                               | [BEM GEN1 (V3.0.0.1)](https://alseyecorp.com/wp-content/uploads/2024/10/ALSEYE-BEM_V3.0.0.1.zip) — está en la sección *SOFTWARE* del footer de alseyecorp.com, no en la ficha del producto. Inno Setup. **Ojo:** es un downgrade, ver Notas.                                                                                 |
 | Archon App                                             | Sin paquete en Winget (solo existe un agente de Zorus y un "Archon for ARK" de Store, no relacionados)              | Guardar el instalador original en `private-configs/manual-installs/archon/`.                                                                                                                                                   |
 | NVIDIA App + driver                                    | No está en la fuente `winget` (solo existe el ID de Store `XP8CLZL93F5Z4P`)                                         | https://www.nvidia.com/en-us/software/nvidia-app/                                                                                                                                                                              |
 | Canon TS3100 (MP Drivers, IJ Scan Utility, Quick Menu) | Suite específica de hardware                                                                                        | https://ij.start.canon                                                                                                                                                                                                         |
@@ -47,5 +47,12 @@ private-configs/manual-installs/          <- git-ignored, nunca se commitea
 
 ## Notas
 
+- **ALSEYE M120DPLUS usa BEM GEN1.** El link directo vive en el footer del sitio (*SOFTWARE → BEM GEN1*), no en
+  la página del producto, y esa página tiene un slug de lorem ipsum (`/product/augue-adipiscing-euismod/`) que
+  hace parecer que no existe. El zip trae un único `.exe` (instalador Inno Setup, ~13 MB).
+- **El GEN1 publicado es 3.0.0.1 y esta PC tiene 3.0.0.3**: el archivo del sitio es un *downgrade*. La etapa lo
+  saltea por el `detect` salvo que se pase `-Force`, así que no hay riesgo de bajar de versión sin querer. Si
+  aparece una 3.0.0.3 descargable, reemplazá el zip y actualizá esta nota. **"BEM GEN2"** es para productos más
+  nuevos, no para el M120DPLUS.
 - Juegos (Steam, Battle.net, Riot, EA) se reinstalan desde su launcher, no hace falta listarlos.
 - Si en el futuro una app manual entra a Winget, moverla a `apps/winget-apps.txt` y borrarla de esta tabla.

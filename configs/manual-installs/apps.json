@@ -20,7 +20,7 @@
       "tipo": "installer",
       "carpeta": "alseye-bem",
       "archivo": "*.exe",
-      "silentArgs": "",
+      "silentArgs": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
       "detect": "ALSEYE"
     },
     {
