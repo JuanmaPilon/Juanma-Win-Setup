@@ -1,16 +1,18 @@
 {
-  "_nota": "Manifiesto de apps sin paquete en Winget. NO contiene binarios ni links: los instaladores viven en private-configs/manual-installs/<carpeta>/ (git-ignored). Ver configs/manual-installs/README.md.",
+  "_nota": "Manifiesto de apps sin paquete en Winget. NO contiene binarios ni links: los instaladores viven en private-configs/manual-installs/<carpeta>/ (git-ignored) o en la bandeja plana que se pasa con -SourceRoot. Ver configs/manual-installs/README.md.",
   "_tipos": {
-    "installer": "Se busca 'archivo' (glob) en <SourceRoot>/<carpeta> y se ejecuta con silentArgs. Si silentArgs esta vacio, el instalador pide UI.",
-    "zip": "Se busca 'archivo' (glob) y se extrae en 'destino'. Si el zip trae una sola carpeta adentro, se aplana."
+    "installer": "Se busca el primer 'patrones' que matchee y se ejecuta con silentArgs. Si silentArgs esta vacio, el instalador pide UI.",
+    "zip": "Se busca 'patrones' (glob .zip) y se extrae en 'destino'. Si el zip trae una sola carpeta adentro, se aplana.",
+    "exe": "Binario portable de un solo archivo: se copia sobre 'destino' (ruta completa del .exe). No reinicia la app."
   },
+  "_busqueda": "Cada patron se busca primero en <SourceRoot>/<carpeta>/ y despues plano en <SourceRoot>/. Gana el archivo mas nuevo por fecha.",
   "apps": [
     {
       "id": "archon",
       "nombre": "Archon App",
       "tipo": "installer",
       "carpeta": "archon",
-      "archivo": "*.exe",
+      "patrones": ["*archon*.exe"],
       "silentArgs": "/S",
       "detect": "Archon App"
     },
@@ -19,7 +21,7 @@
       "nombre": "ALSEYE BEM",
       "tipo": "installer",
       "carpeta": "alseye-bem",
-      "archivo": "*.exe",
+      "patrones": ["*alseye*.exe", "*alsaye*.exe", "*bem*.exe"],
       "silentArgs": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
       "detect": "ALSEYE"
     },
@@ -28,7 +30,7 @@
       "nombre": "NVIDIA App + driver",
       "tipo": "installer",
       "carpeta": "nvidia",
-      "archivo": "*.exe",
+      "patrones": ["*nvidia*.exe"],
       "silentArgs": "",
       "detect": "NVIDIA"
     },
@@ -37,24 +39,30 @@
       "nombre": "Canon TS3100 series (MP Drivers, IJ Scan Utility)",
       "tipo": "installer",
       "carpeta": "canon",
-      "archivo": "*.exe",
+      "patrones": [
+        "*canon*.exe",
+        "*cannon*.exe",
+        "*pixma*.exe",
+        "*ts11*.exe",
+        "*ts31*.exe"
+      ],
       "silentArgs": "",
       "detect": "Canon"
     },
     {
       "id": "wisp",
       "nombre": "Wisp",
-      "tipo": "zip",
+      "tipo": "exe",
       "carpeta": "wisp",
-      "archivo": "*.zip",
-      "destino": "%LOCALAPPDATA%\\Programs\\Wisp"
+      "patrones": ["wisp*.exe", "*wisp*.exe"],
+      "destino": "%LOCALAPPDATA%\\Programs\\Wisp\\wisp.exe"
     },
     {
       "id": "multimonitortool",
       "nombre": "MultiMonitorTool",
       "tipo": "zip",
       "carpeta": "multimonitortool",
-      "archivo": "*.zip",
+      "patrones": ["*multimonitor*.zip", "*mmt*.zip"],
       "destino": "%LOCALAPPDATA%\\Programs\\MultiMonitorTool"
     }
   ]

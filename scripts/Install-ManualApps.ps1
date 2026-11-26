@@ -52,6 +52,10 @@ function Get-AppValue {
         $Default = $null
     )
 
+    if ($null -eq $App) {
+        return $Default
+    }
+
     $property = $App.PSObject.Properties[$Name]
     if ($property -and $null -ne $property.Value) {
         return $property.Value
@@ -78,7 +82,10 @@ function Get-InstalledDisplayName {
     foreach ($root in $roots) {
         foreach ($key in Get-ChildItem $root -ErrorAction SilentlyContinue) {
             $props = Get-ItemProperty $key.PSPath -ErrorAction SilentlyContinue
-            $displayName = $props.DisplayName
+            # Hay claves sin valores: Get-ItemProperty devuelve $null.
+            if ($null -eq $props) { continue }
+            # StrictMode: las claves sin DisplayName tiran al leer la propiedad.
+            $displayName = [string](Get-AppValue $props 'DisplayName' '')
             if ($displayName -and $displayName -like "*$Pattern*") {
                 return $displayName
             }
@@ -113,6 +120,34 @@ function Expand-ZipFlat {
     }
 }
 
+# Busca el instalador de una app: primero en su carpeta curada y despues plano en
+# la raiz de -SourceRoot (bandeja de entrada tipo Downloads\installers, donde los
+# archivos caen con nombres libres). Se queda con el mas nuevo por fecha.
+function Find-InstallerFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$Folder,
+        [Parameter(Mandatory = $true)][string]$FlatFolder,
+        [Parameter(Mandatory = $true)][string[]]$Patterns
+    )
+
+    $candidates = @()
+    foreach ($patron in $Patterns) {
+        if (-not $patron) { continue }
+        if (Test-Path -LiteralPath $Folder) {
+            $candidates += @(Get-ChildItem -LiteralPath $Folder -Filter $patron -File -ErrorAction SilentlyContinue)
+        }
+        if (Test-Path -LiteralPath $FlatFolder) {
+            $candidates += @(Get-ChildItem -LiteralPath $FlatFolder -Filter $patron -File -ErrorAction SilentlyContinue)
+        }
+    }
+
+    if ($candidates.Count -eq 0) {
+        return $null
+    }
+
+    return ($candidates | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
+}
+
 $instalados = 0
 $omitidos = 0
 $faltantes = 0
@@ -136,20 +171,20 @@ foreach ($app in $apps) {
         }
     }
 
-    $patron = [string](Get-AppValue $app 'archivo' '')
-    if (-not $patron) {
-        $patron = if ($tipo -eq 'zip') { '*.zip' } else { '*.exe' }
+    $patrones = @(Get-AppValue $app 'patrones' @())
+    if ($patrones.Count -eq 0) {
+        # Compatibilidad con la version anterior del manifiesto (campo 'archivo').
+        $archivoUnico = [string](Get-AppValue $app 'archivo' '')
+        if ($archivoUnico) { $patrones = @($archivoUnico) }
+    }
+    if ($patrones.Count -eq 0) {
+        $patrones = @(if ($tipo -eq 'zip') { '*.zip' } else { '*.exe' })
     }
 
-    $archivo = $null
-    if (Test-Path -LiteralPath $carpeta) {
-        $archivo = Get-ChildItem -LiteralPath $carpeta -Filter $patron -File -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 1
-    }
+    $archivo = Find-InstallerFile -Folder $carpeta -FlatFolder $SourceRoot -Patterns $patrones
 
     if (-not $archivo) {
-        Write-SetupWarning "Falta el archivo de $nombre (buscaba '$patron' en $carpeta)."
+        Write-SetupWarning "Falta el archivo de $nombre (buscaba $($patrones -join ' / ') en $carpeta y en la raiz de la bandeja)."
         $faltantes++
         continue
     }
@@ -177,6 +212,60 @@ foreach ($app in $apps) {
         catch {
             Clear-SetupProgress
             Write-SetupWarning "No se pudo extraer $nombre : $($_.Exception.Message)"
+            $fallidos++
+        }
+        continue
+    }
+
+    # Binario portable de un solo archivo (ej. Wisp): se copia sobre 'destino'.
+    if ($tipo -eq 'exe') {
+        $destino = Expand-PathLike ([string](Get-AppValue $app 'destino' ''))
+        if (-not $destino) {
+            Write-SetupWarning "$nombre no tiene 'destino' en el manifiesto; se omite."
+            $fallidos++
+            continue
+        }
+
+        $versionNueva = (Get-Item -LiteralPath $archivo.FullName).VersionInfo.FileVersion
+
+        if ((Test-Path -LiteralPath $destino) -and -not $Force) {
+            $versionActual = (Get-Item -LiteralPath $destino).VersionInfo.FileVersion
+            if ($versionNueva -and $versionActual -eq $versionNueva) {
+                Write-SetupInfo "$nombre ya esta en v$versionActual ($destino)."
+                $omitidos++
+                continue
+            }
+        }
+
+        if ($DryRun) {
+            Write-SetupInfo "[dry run] copiaria $($archivo.Name) (v$versionNueva) sobre $destino"
+            continue
+        }
+
+        $destinoDir = Split-Path -Parent $destino
+        if (-not (Test-Path -LiteralPath $destinoDir)) {
+            New-Item -ItemType Directory -Path $destinoDir -Force | Out-Null
+        }
+
+        # Un binario en ejecucion no se puede sobreescribir: reintentar.
+        $copiado = $false
+        for ($i = 0; $i -lt 12; $i++) {
+            try {
+                Copy-Item -LiteralPath $archivo.FullName -Destination $destino -Force -ErrorAction Stop
+                $copiado = $true
+                break
+            }
+            catch {
+                Start-Sleep -Milliseconds 500
+            }
+        }
+
+        if ($copiado) {
+            Write-SetupSuccess "$nombre actualizado a v$versionNueva en $destino (reinicia la app para que tome efecto)."
+            $instalados++
+        }
+        else {
+            Write-SetupWarning "No se pudo copiar $nombre : el binario esta en ejecucion. Cerralo y volve a correr la etapa."
             $fallidos++
         }
         continue
