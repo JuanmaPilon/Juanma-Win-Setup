@@ -6,9 +6,14 @@
 
 No hay paquete en Winget todavía (`SumirSeth.Wisp` no existe en el índice). Instalación manual:
 
-1. Descargar `wisp-vX-x86_64-windows.zip` del [último release](https://github.com/SumirSeth/wisp/releases/latest).
-2. Extraer en `%LOCALAPPDATA%\Programs\Wisp`.
+1. Descargar el release del [repo](https://github.com/SumirSeth/wisp/releases/latest). Desde la **0.9.0** es un
+   `.exe` portable único; hasta la 0.8.0 era `wisp-vX-x86_64-windows.zip`.
+2. Si vino zippeado, extraer en `%LOCALAPPDATA%\Programs\Wisp`; si es el `.exe` suelto, copiarlo como
+   `%LOCALAPPDATA%\Programs\Wisp\wisp.exe`.
 3. Ejecutar `wisp.exe` (abre Settings y registra el autostart + el shortcut).
+
+También lo instala `scripts/Install-ManualApps.ps1` (`tipo: "exe"` en `configs/manual-installs/apps.json`), buscando
+`wisp*.exe` en la bandeja de instaladores. **Si Wisp está corriendo la copia falla**: cerralo y volvé a correr la etapa.
 
 > **Nunca** dejar Wisp corriendo desde `Downloads`: el backup de startup guarda la ruta del `.exe`, y en otra PC esa ruta no existe.
 

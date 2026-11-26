@@ -115,6 +115,27 @@ Etapas sueltas:
 | Exportar todo           | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                           | —               |
 | Finalize                | `scripts/Finalize.ps1 -RepositoryRoot .`                                                     | —               |
 
+### Apps manuales y la bandeja de instaladores
+
+`scripts/Install-ManualApps.ps1` lee `configs/manual-installs/apps.json` (público, sin binarios) y busca cada
+instalador con la lista `patrones` (globs) de la entrada, en este orden:
+
+1. `private-configs/manual-installs/<carpeta>/` — la copia curada, la que va al backup.
+2. La raíz del `-SourceRoot` — la **bandeja plana**, para lo recién bajado, sin ordenar ni renombrar.
+
+Gana el archivo más nuevo por fecha, así que actualizar una app es sólo dejar el `.exe` nuevo en la bandeja.
+El default de `-SourceRoot` es `private-configs/manual-installs`; para usar `Downloads/installers` como bandeja:
+
+```powershell
+.\scripts\Install-ManualApps.ps1 -RepositoryRoot . -SourceRoot "$env:USERPROFILE\Downloads\installers" -DryRun
+```
+
+Tipos soportados: `installer` (ejecuta con `silentArgs`, acepta exit `0` y `3010`), `zip` (extrae en `destino`
+aplanando la carpeta interna) y `exe` (copia un binario portable sobre `destino`; **no** reinicia la app, así que
+si estaba abierta hay que cerrarla y volver a correr la etapa). La búsqueda **nunca** debe romper con StrictMode:
+las claves de desinstalación sin `DisplayName` devuelven `$null`, y leer una propiedad de `$null` tira excepción.
+
+
 ### Cambiar el monitor principal (modo trabajo / juego)
 
 `Toggle-Display.cmd` → `scripts/Toggle-PrimaryDisplay.ps1`, que usa **MultiMonitorTool** (NirSoft, portable,
