@@ -258,6 +258,13 @@ Plan, en orden:
 Realtek sigue puesto, así que lo que lo arregló fue el **re-emparejamiento limpio del 17/11**. La lección:
 antes de comprar hardware, quitar el dispositivo y emparejar de nuevo.
 
+**Actualización (2026-11-26): el dongle sí importaba.** Después de cambiar al **TP-Link** (driver
+`1.9.1038.3023`) el diálogo de "Pair device?" volvió **una sola vez** —lo esperable, la clave vive en el
+adaptador viejo— y desde entonces la reconexión quedó **casi a cero**: ya no pide emparejar todo el rato.
+O sea que eran dos cosas: el re-emparejamiento limpio destrabó el vínculo roto, y el adaptador con driver
+moderno lo mantiene estable. La conclusión del 20/11 hay que leerla con este agregado: el re-pair era el
+primer paso correcto, pero no alcanzaba a largo plazo.
+
 ### Checklist al cambiar de adaptador Bluetooth
 
 Cambiar de dongle **rompe el emparejamiento** (la clave vive en el adaptador viejo), así que:
@@ -283,11 +290,11 @@ Contexto: se cambió el dongle por un **TP-Link Bluetooth USB Adapter** (el driv
 `1.9.1038.3023`) y se re-emparejaron los **REDMI Buds 8 Active**. El re-pareo reinstaló los servicios
 Hands-Free, así que quedaron **tres endpoints activos al mismo tiempo**:
 
-| Endpoint                                    | Perfil      | Calidad            |
-| ------------------------------------------- | ----------- | ------------------ |
-| `Headphones (REDMI Buds 8 Active)`          | A2DP        | estéreo, buena     |
-| `Headset (REDMI Buds 8 Active Hands-Free)`  | HFP         | mono, de llamada   |
-| `Headset (REDMI Buds 8 Active)`             | HFP (alias) | mono, de llamada   |
+| Endpoint                                   | Perfil      | Calidad          |
+| ------------------------------------------ | ----------- | ---------------- |
+| `Headphones (REDMI Buds 8 Active)`         | A2DP        | estéreo, buena   |
+| `Headset (REDMI Buds 8 Active Hands-Free)` | HFP         | mono, de llamada |
+| `Headset (REDMI Buds 8 Active)`            | HFP (alias) | mono, de llamada |
 
 Síntoma: el audio sonaba "pésimo" — no con ruido ni cortes, sino **mono y opaco**.
 
@@ -322,25 +329,31 @@ Arreglo (el que quedó aplicado):
 Estado exacto de la PC el 2026-11-20, con los auriculares conectando al instante. Si algún día vuelve el
 diálogo de "Pair device?", comparar contra esta tabla antes de tocar hardware.
 
-| Componente | Valor sano | Cómo verificarlo |
-| ---------- | ---------- | ---------------- |
+> **Desde el 2026-11-23** el adaptador es un **TP-Link** (driver `1.9.1038.3023`) y los auriculares son
+> **REDMI Buds 8 Active**. Las filas de "Driver" y "Puerto USB" de abajo son del adaptador viejo: sirven
+> como referencia de un estado que funcionaba, no como lo que hay hoy.
+
+| Componente                                | Valor sano                                                                                                                                       | Cómo verificarlo                                                                                                           |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
 | Servicios del dispositivo (por adaptador) | `1101` SPP · `110b` A2DP Sink · `110c` AVRCP Target · `110e` AVRCP · `111e` Handsfree · `1124` HID · `fd2d`, `df21fe2c` — **todos `Instance=1`** | subclave `ServicesFor<serial-del-adaptador>` en `HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices\<MAC>\` |
-| Seguridad del vínculo | `SSP Paired=1`, `SSP Supported=1`, `SSP MITM Protected=0`, `IoCapability=3` | mismos valores en esa subclave |
-| Ahorro de energía del adaptador | **Desactivado** (`MSPower_DeviceEnable = False`) | `Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable` filtrando por `VID_0BDA` |
-| Fast Startup (inicio rápido) | **Desactivado** (`HiberbootEnabled = 0`) | `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power` |
-| Servicios de Windows | `bthserv` y `BTAGService` en **Manual / Running** (es lo normal: arrancan a demanda) | `Get-Service bthserv, BTAGService` |
-| Adaptador Intel de la mother | **Deshabilitado** (Code 22). No sirve: mala señal sin antena, y suma un radio fantasma | Administrador de dispositivos → Bluetooth |
-| Puerto USB | USB 2.0 o alargue, lejos de los 3.0 (azules: emiten ruido en 2.4 GHz) | — |
-| Driver | Realtek `1.6.1015.3018` (2021). **Si funciona, no lo toques** | Administrador de dispositivos → propiedades del adaptador |
+| Seguridad del vínculo                     | `SSP Paired=1`, `SSP Supported=1`, `SSP MITM Protected=0`, `IoCapability=3`                                                                      | mismos valores en esa subclave                                                                                             |
+| Ahorro de energía del adaptador           | **Desactivado** (`MSPower_DeviceEnable = False`)                                                                                                 | `Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable` filtrando por `VID_0BDA`                             |
+| Fast Startup (inicio rápido)              | **Desactivado** (`HiberbootEnabled = 0`)                                                                                                         | `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power`                                                              |
+| Servicios de Windows                      | `bthserv` y `BTAGService` en **Manual / Running** (es lo normal: arrancan a demanda)                                                             | `Get-Service bthserv, BTAGService`                                                                                         |
+| Adaptador Intel de la mother              | **Deshabilitado** (Code 22). No sirve: mala señal sin antena, y suma un radio fantasma                                                           | Administrador de dispositivos → Bluetooth                                                                                  |
+| Puerto USB                                | USB 2.0 o alargue, lejos de los 3.0 (azules: emiten ruido en 2.4 GHz)                                                                            | —                                                                                                                          |
+| Driver                                    | Realtek `1.6.1015.3018` (2021). **Si funciona, no lo toques**                                                                                    | Administrador de dispositivos → propiedades del adaptador                                                                  |
 
 Reglas de oro, en orden de importancia:
 
 1. **Si funciona, no re-emparejes.** Cada re-pair genera clave nueva y reinstala servicios: es la operación
    que más se acerca a "romper" un vínculo sano.
 2. **Si vuelve el diálogo de emparejamiento, el primer paso es re-emparejar limpio** (quitar dispositivo →
-   Add device). Eso fue justo lo que arregló esta PC, sin cambiar hardware.
+   Add device). Eso destrabó esta PC la primera vez; si el ciclo **se repite seguido**, el adaptador entra en
+   la ecuación: cambiar el dongle bajó la reconexión a casi cero (2026-11-26).
 3. **El 5.3 del dongle no mejora el audio**: A2DP en Windows sigue en SBC/AAC. La versión no define la calidad.
-4. **El alargue USB vale más que un dongle nuevo** si el síntoma es señal.
+4. **Para señal, el alargue USB es lo primero**; pero para el ciclo de re-emparejamiento el dongle nuevo con
+   driver moderno sí cambió el resultado en esta PC. No es el 5.3: es el driver.
 
 Chequeo de salud (30 segundos):
 
@@ -357,13 +370,14 @@ Get-PnpDevice -PresentOnly | Where-Object FriendlyName -match 'Buds' | Select St
 
 ## Resumen de estado
 
-| Problema                             | Solución                                                   | Estado                      |
-| ------------------------------------ | ---------------------------------------------------------- | --------------------------- |
-| Perfil Hands-Free agarra el audio    | **Deshabilitar el micrófono de los buds** (el toggle de Telephony no alcanza) | ✅ confirmado 2026-11-23     |
-| Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)           | 🔄 reintento en curso       |
-| Dispositivo de audio incorrecto      | Sin automatización por ahora; el mic deshabilitado evita el salto | ⏸ pendiente                 |
-| Toasts en el monitor equivocado      | Windhawk `notifications-placement`, `monitor = 0`          | ✅ disponible               |
-| Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                           | ✅ disponible               |
+| Problema                             | Solución                                                                      | Estado                   |
+| ------------------------------------ | ----------------------------------------------------------------------------- | ------------------------ |
+| Perfil Hands-Free agarra el audio    | **Deshabilitar el micrófono de los buds** (el toggle de Telephony no alcanza) | ✅ confirmado 2026-11-23 |
+| Pide emparejar y reconecta mal        | Re-pair limpio + dongle con driver moderno (TP-Link `1.9.x`)                 | ✅ casi nulo 2026-11-26  |
+| Elegir salida/entrada rápido         | SoundSwitch (en reintento) o AudioSwitcher (red)                              | 🔄 reintento en curso    |
+| Dispositivo de audio incorrecto      | Sin automatización por ahora; el mic deshabilitado evita el salto             | ⏸ pendiente              |
+| Toasts en el monitor equivocado      | Windhawk `notifications-placement`, `monitor = 0`                             | ✅ disponible            |
+| Ver/conectar desde el monitor activo | Dock de Wisp (`bt`, panel `Now`)                                              | ✅ disponible            |
 
 ## Otras cosas vistas en el log (no relacionadas, pero para no perderlas)
 
