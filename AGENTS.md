@@ -61,7 +61,7 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
 | Ruta                        | Qué hay                                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------- |
 | `Menu.cmd`                  | Launcher recomendado → `scripts/Menu.ps1`                                                   |
-| `Setup.ps1`                 | Pipeline completo: Apps → Cleanup → Repos → Import-Configs → Finalize                      |
+| `Setup.ps1`                 | Pipeline completo: Apps → Cleanup → Repos → Import-Configs → Finalize                       |
 | `apps/winget-apps.txt`      | IDs de Winget a instalar, uno por línea, `#` para comentarios                               |
 | `apps/winget-remove.txt`    | Denylist de paquetes deprecados: `PackageId \| DisplayNamePattern \| ExtraSilentArgs`       |
 | `repos/personal-repos.txt`  | URLs de repos privados a clonar en el perfil del usuario (sólo URLs, nunca credenciales)    |
@@ -103,16 +103,16 @@ clone sin credenciales falle rápido en vez de colgar el setup.
 
 Etapas sueltas:
 
-| Etapa                  | Script                                                                                   | `-DryRun`       |
-| ---------------------- | ---------------------------------------------------------------------------------------- | --------------- |
-| Instalar Winget        | `scripts/Install-Winget.ps1`                                                             | —               |
-| Instalar apps          | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                             | sí              |
-| Desinstalar deprecados | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                    | sí              |
+| Etapa                   | Script                                                                                   | `-DryRun`       |
+| ----------------------- | ---------------------------------------------------------------------------------------- | --------------- |
+| Instalar Winget         | `scripts/Install-Winget.ps1`                                                             | —               |
+| Instalar apps           | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                             | sí              |
+| Desinstalar deprecados  | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                    | sí              |
 | Clonar repos personales | `scripts/Clone-PersonalRepos.ps1 -RepositoryRoot .` (idempotente: clone o pull)          | sí              |
-| Importar configs       | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí              |
-| Actualizar todo        | `scripts/Update-Apps.ps1 -RepositoryRoot .`                                              | sí (sólo lista) |
-| Exportar todo          | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                       | —               |
-| Finalize               | `scripts/Finalize.ps1 -RepositoryRoot .`                                                 | —               |
+| Importar configs        | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí              |
+| Actualizar todo         | `scripts/Update-Apps.ps1 -RepositoryRoot .`                                              | sí (sólo lista) |
+| Exportar todo           | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                       | —               |
+| Finalize                | `scripts/Finalize.ps1 -RepositoryRoot .`                                                 | —               |
 
 ### Cambiar el monitor principal (modo trabajo / juego)
 
