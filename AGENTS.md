@@ -103,17 +103,17 @@ clone sin credenciales falle rápido en vez de colgar el setup.
 
 Etapas sueltas:
 
-| Etapa                   | Script                                                                                   | `-DryRun`       |
-| ----------------------- | ---------------------------------------------------------------------------------------- | --------------- |
-| Instalar Winget         | `scripts/Install-Winget.ps1`                                                             | —               |
-| Instalar apps           | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                             | sí              |
-| Apps manuales           | `scripts/Install-ManualApps.ps1 -RepositoryRoot .` (lee `configs/manual-installs/apps.json`) | sí            |
-| Desinstalar deprecados  | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                    | sí              |
-| Clonar repos personales | `scripts/Clone-PersonalRepos.ps1 -RepositoryRoot .` (idempotente: clone o pull)          | sí              |
-| Importar configs        | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí              |
-| Actualizar todo         | `scripts/Update-Apps.ps1 -RepositoryRoot .`                                              | sí (sólo lista) |
-| Exportar todo           | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                       | —               |
-| Finalize                | `scripts/Finalize.ps1 -RepositoryRoot .`                                                 | —               |
+| Etapa                   | Script                                                                                       | `-DryRun`       |
+| ----------------------- | -------------------------------------------------------------------------------------------- | --------------- |
+| Instalar Winget         | `scripts/Install-Winget.ps1`                                                                 | —               |
+| Instalar apps           | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                                 | sí              |
+| Apps manuales           | `scripts/Install-ManualApps.ps1 -RepositoryRoot .` (lee `configs/manual-installs/apps.json`) | sí              |
+| Desinstalar deprecados  | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                        | sí              |
+| Clonar repos personales | `scripts/Clone-PersonalRepos.ps1 -RepositoryRoot .` (idempotente: clone o pull)              | sí              |
+| Importar configs        | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers)     | sí              |
+| Actualizar todo         | `scripts/Update-Apps.ps1 -RepositoryRoot .`                                                  | sí (sólo lista) |
+| Exportar todo           | opción 5 del menú, o `scripts/Export-<Modulo>.ps1`                                           | —               |
+| Finalize                | `scripts/Finalize.ps1 -RepositoryRoot .`                                                     | —               |
 
 ### Cambiar el monitor principal (modo trabajo / juego)
 

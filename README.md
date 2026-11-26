@@ -131,4 +131,4 @@ To rebuild the main PC from zero:
 5. Run `Menu.cmd`: install Winget, run full setup, import environment variables (DryRun first), then import config backups.
 6. Sign out/in and open a new terminal to apply shell and UI settings.
 
-What is NOT covered by that folder: the installers themselves — ALSEYE BEM, Archon, NVIDIA driver, Canon, Wisp and MultiMonitorTool have to be downloaded once into `private-configs/manual-installs/`, and then the *manual apps* stage installs them. Game installs are managed by their launchers, and the Firefox profile module is still pending.
+What is NOT covered by that folder: the installers themselves — ALSEYE BEM, Archon, NVIDIA driver, Canon, Wisp and MultiMonitorTool have to be downloaded once into `private-configs/manual-installs/`, and then the _manual apps_ stage installs them. Game installs are managed by their launchers, and the Firefox profile module is still pending.
