@@ -11,6 +11,29 @@ Esta lista existe para no perderlas en una instalación limpia.
    - usar el instalador guardado en `private-configs/manual-installs/<app>/`.
 3. Nunca commitear instaladores, claves de licencia ni seriales al repo público.
 
+## Instalación automática (opcional)
+
+`scripts/Install-ManualApps.ps1` lee el manifiesto `configs/manual-installs/apps.json` y hace el paso 2 por vos,
+siempre que los archivos estén en `private-configs/manual-installs/<carpeta>/`:
+
+```text
+private-configs/manual-installs/          <- git-ignored, nunca se commitea
+├── archon\*.exe            NSIS, se ejecuta con /S
+├── alseye-bem\*.exe        sin switch silencioso: abre la UI
+├── nvidia\*.exe            sin switch silencioso: abre la UI
+├── canon\*.exe             sin switch silencioso: abre la UI
+├── wisp\*.zip              se extrae en %LOCALAPPDATA%\Programs\Wisp
+└── multimonitortool\*.zip  se extrae en %LOCALAPPDATA%\Programs\MultiMonitorTool
+```
+
+- El glob (`*.exe` / `*.zip`) toma **el archivo más nuevo** de la carpeta: al actualizar no hay que renombrar nada.
+- Es **idempotente**: si la app ya está en el registro de desinstalación, o el destino ya tiene ejecutables, la
+  saltea. `-Force` reinstala.
+- `-DryRun` muestra qué haría sin tocar nada. `-SourceRoot` permite leer de otra carpeta.
+- Si falta un archivo, avisa con la ruta exacta y **sigue con el resto**.
+- Los zip se extraen **aplanando** la carpeta interna (`wisp-v0.8.0-x86_64-windows/`), así la ruta destino no
+  lleva la versión y el autostart no se rompe en cada actualización.
+
 ## Apps
 
 | App                                                    | Por qué es manual                                                                                                   | De dónde obtenerla                                                                                                                                                                                                             |

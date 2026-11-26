@@ -61,7 +61,7 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
 | Ruta                        | Qué hay                                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------- |
 | `Menu.cmd`                  | Launcher recomendado → `scripts/Menu.ps1`                                                   |
-| `Setup.ps1`                 | Pipeline completo: Apps → Cleanup → Repos → Import-Configs → Finalize                       |
+| `Setup.ps1`                 | Pipeline completo: Apps → Manual → Cleanup → Repos → Import-Configs → Finalize              |
 | `apps/winget-apps.txt`      | IDs de Winget a instalar, uno por línea, `#` para comentarios                               |
 | `apps/winget-remove.txt`    | Denylist de paquetes deprecados: `PackageId \| DisplayNamePattern \| ExtraSilentArgs`       |
 | `repos/personal-repos.txt`  | URLs de repos privados a clonar en el perfil del usuario (sólo URLs, nunca credenciales)    |
@@ -73,7 +73,7 @@ Este es un **repo personal**: el dueño maneja las ramas y trabaja directo sobre
 | `private-configs/`          | Backups reales. **GIT-IGNORED**                                                             |
 
 Módulos de configuración: `powertoys`, `windows-ui`, `startup`, `terminal`, `wisp`, `git`,
-`manual-installs` (sólo docs).
+`manual-installs` (manifiesto `apps.json` + docs).
 
 El backup de recuperación es **copiar la carpeta `private-configs/` completa** a un medio externo (USB,
 nube, otra PC). No existe script de empaquetado a propósito: nunca dejarla dentro del repo.
@@ -97,7 +97,7 @@ clone sin credenciales falle rápido en vez de colgar el setup.
 # menú interactivo (vía recomendada, incluye detección de admin y elevación)
 .\Menu.cmd
 
-# pipeline completo; soporta -DryRun, -SkipApps, -SkipCleanup, -SkipRepos, -SkipConfigs, -SkipFinalize
+# pipeline completo; soporta -DryRun, -SkipApps, -SkipManual, -SkipCleanup, -SkipRepos, -SkipConfigs, -SkipFinalize
 .\Setup.ps1 -DryRun
 ```
 
@@ -107,6 +107,7 @@ Etapas sueltas:
 | ----------------------- | ---------------------------------------------------------------------------------------- | --------------- |
 | Instalar Winget         | `scripts/Install-Winget.ps1`                                                             | —               |
 | Instalar apps           | `scripts/Install-Apps.ps1 -RepositoryRoot .`                                             | sí              |
+| Apps manuales           | `scripts/Install-ManualApps.ps1 -RepositoryRoot .` (lee `configs/manual-installs/apps.json`) | sí            |
 | Desinstalar deprecados  | `scripts/Remove-DeprecatedApps.ps1 -RepositoryRoot .`                                    | sí              |
 | Clonar repos personales | `scripts/Clone-PersonalRepos.ps1 -RepositoryRoot .` (idempotente: clone o pull)          | sí              |
 | Importar configs        | `scripts/Import-Configs.ps1 -RepositoryRoot .` (propaga `-DryRun` a todos los importers) | sí              |

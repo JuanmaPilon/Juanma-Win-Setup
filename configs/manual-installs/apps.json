@@ -1,0 +1,61 @@
+{
+  "_nota": "Manifiesto de apps sin paquete en Winget. NO contiene binarios ni links: los instaladores viven en private-configs/manual-installs/<carpeta>/ (git-ignored). Ver configs/manual-installs/README.md.",
+  "_tipos": {
+    "installer": "Se busca 'archivo' (glob) en <SourceRoot>/<carpeta> y se ejecuta con silentArgs. Si silentArgs esta vacio, el instalador pide UI.",
+    "zip": "Se busca 'archivo' (glob) y se extrae en 'destino'. Si el zip trae una sola carpeta adentro, se aplana."
+  },
+  "apps": [
+    {
+      "id": "archon",
+      "nombre": "Archon App",
+      "tipo": "installer",
+      "carpeta": "archon",
+      "archivo": "*.exe",
+      "silentArgs": "/S",
+      "detect": "Archon App"
+    },
+    {
+      "id": "alseye-bem",
+      "nombre": "ALSEYE BEM",
+      "tipo": "installer",
+      "carpeta": "alseye-bem",
+      "archivo": "*.exe",
+      "silentArgs": "",
+      "detect": "ALSEYE"
+    },
+    {
+      "id": "nvidia-app",
+      "nombre": "NVIDIA App + driver",
+      "tipo": "installer",
+      "carpeta": "nvidia",
+      "archivo": "*.exe",
+      "silentArgs": "",
+      "detect": "NVIDIA"
+    },
+    {
+      "id": "canon-ts3100",
+      "nombre": "Canon TS3100 series (MP Drivers, IJ Scan Utility)",
+      "tipo": "installer",
+      "carpeta": "canon",
+      "archivo": "*.exe",
+      "silentArgs": "",
+      "detect": "Canon"
+    },
+    {
+      "id": "wisp",
+      "nombre": "Wisp",
+      "tipo": "zip",
+      "carpeta": "wisp",
+      "archivo": "*.zip",
+      "destino": "%LOCALAPPDATA%\\Programs\\Wisp"
+    },
+    {
+      "id": "multimonitortool",
+      "nombre": "MultiMonitorTool",
+      "tipo": "zip",
+      "carpeta": "multimonitortool",
+      "archivo": "*.zip",
+      "destino": "%LOCALAPPDATA%\\Programs\\MultiMonitorTool"
+    }
+  ]
+}

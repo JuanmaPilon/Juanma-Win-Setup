@@ -94,7 +94,7 @@ Sensitive or machine-specific data should not be committed by default.
 
 The current setup flow focuses on environment variables, PowerToys, Windows UI preferences (mouse/theme), startup apps, terminal configuration and Wisp. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
 
-Apps without a Winget package are tracked in [configs/manual-installs/README.md](configs/manual-installs/README.md), with vendor links and instructions to keep installers under `private-configs/manual-installs/`.
+Apps without a Winget package are installed from a local manifest (`configs/manual-installs/apps.json`) that reads the installers you keep under `private-configs/manual-installs/` (Git-ignored). Nothing binary is ever committed: the manifest only describes the file to run, the folder to extract into, and which silent switch to use.
 
 ## Environment variables safety
 
@@ -131,4 +131,4 @@ To rebuild the main PC from zero:
 5. Run `Menu.cmd`: install Winget, run full setup, import environment variables (DryRun first), then import config backups.
 6. Sign out/in and open a new terminal to apply shell and UI settings.
 
-What is NOT covered by that folder (handle manually): apps listed in [configs/manual-installs/README.md](configs/manual-installs/README.md) (ALSEYE BEM, Archon, NVIDIA driver, Canon, Wisp), game installs managed by launchers, and the pending Firefox profile module.
+What is NOT covered by that folder: the installers themselves — ALSEYE BEM, Archon, NVIDIA driver, Canon, Wisp and MultiMonitorTool have to be downloaded once into `private-configs/manual-installs/`, and then the *manual apps* stage installs them. Game installs are managed by their launchers, and the Firefox profile module is still pending.

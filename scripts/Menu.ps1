@@ -47,13 +47,14 @@ function Show-MainMenu {
     Write-Host ''
 
     Write-SetupMenuItem -Key '1' -Text 'Install Winget' -Hint 'bootstrap del gestor de paquetes'
-    Write-SetupMenuItem -Key '2' -Text 'Run full setup' -Hint 'apps + cleanup + repos + configs + finalize'
+    Write-SetupMenuItem -Key '2' -Text 'Run full setup' -Hint 'apps + manual + cleanup + repos + configs + finalize'
     Write-SetupMenuItem -Key '3' -Text 'Import environment variables' -Hint 'variables de usuario/maquina'
     Write-SetupMenuItem -Key '4' -Text 'Import config backups' -Hint 'powertoys, windows-ui, terminal, wisp...'
     Write-SetupMenuItem -Key '5' -Text 'Export everything' -Hint 'genera private-configs desde esta PC'
     Write-SetupMenuItem -Key '6' -Text 'Remove deprecated apps' -Hint 'desinstala lo que ya no se usa (winget-remove.txt)'
     Write-SetupMenuItem -Key '7' -Text 'Update all apps' -Hint 'winget upgrade --all'
     Write-SetupMenuItem -Key '8' -Text 'Clone personal repos' -Hint 'repos privados en el perfil del usuario (personal-repos.txt)'
+    Write-SetupMenuItem -Key '9' -Text 'Install manual apps' -Hint 'instaladores locales de manual-installs (apps.json)'
     Write-SetupMenuItem -Key '0' -Text 'Exit'
 
     Write-Host ''
@@ -136,6 +137,12 @@ while ($true) {
             Write-Host ''
             Write-SetupRule
             & (Join-Path $repoRoot 'scripts/Clone-PersonalRepos.ps1') -RepositoryRoot $repoRoot
+            Write-SetupRule
+        }
+        '9' {
+            Write-Host ''
+            Write-SetupRule
+            & (Join-Path $repoRoot 'scripts/Install-ManualApps.ps1') -RepositoryRoot $repoRoot
             Write-SetupRule
         }
         '0' {

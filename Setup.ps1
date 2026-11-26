@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$SkipApps,
+    [switch]$SkipManual,
     [switch]$SkipCleanup,
     [switch]$SkipRepos,
     [switch]$SkipConfigs,
@@ -21,6 +22,10 @@ if ($DryRun) {
 
 if (-not $SkipApps) {
     & (Join-Path $repoRoot 'scripts/Install-Apps.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
+}
+
+if (-not $SkipManual) {
+    & (Join-Path $repoRoot 'scripts/Install-ManualApps.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
 }
 
 if (-not $SkipCleanup) {
